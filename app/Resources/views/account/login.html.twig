@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .vertical-center-block-wrapper{
+
+            position: absolute;
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+        .vertical-center-block-wrapper::before{
+            height: 100%;
+            display:inline-block;
+            content: '';
+            vertical-align: middle;
+        }
+        .vertical-center-block{
+            display: inline-block;
+            width: 100%;
+            vertical-align: middle;
+        }
+        form.login-form{
+            border: 1px solid gray;
+            max-width: 40em;
+            min-width: 16em;
+            padding: 1em;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% spaceless %}
+    <div class="vertical-center-block-wrapper">
+        <div class="vertical-center-block">
+            <div class="container-fluid ">
+                <div class="row">
+                    <div class="col-xs-12">
+                        {{ form(form, {attr:{class:"login-form center-block"} }) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endspaceless %}
+{% endblock  %}

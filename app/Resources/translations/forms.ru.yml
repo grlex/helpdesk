@@ -1,0 +1,8 @@
+Bad credentials.: Неправильный логин или пароль.
+form:
+    common:
+        login: Логин
+        password: Пароль
+    login:
+        submit: Войти
+        remember_me: Запомнить меня
