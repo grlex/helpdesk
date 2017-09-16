@@ -1,0 +1,37 @@
+{% extends 'main_template.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        form{
+            max-width: 800px;
+        }
+        .save, .cancel{
+            margin: 0 1em;
+            display: inline-block;
+        }
+
+    </style>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $('#active_new_edit_department').chosen({
+            allow_single_deselect: true,
+            width: '100%'
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {{ form_start(form, {attr:{class:'center-block'}}) }}
+    {{ form_errors(form) }}
+    {{ form_row(form.cabNumber) }}
+    {{ form_row(form.department) }}
+    <div class="form-group" style="text-align:center">
+        {{ form_widget(form.cancel , {attr: { class: 'cancel btn btn-default'} }) }}
+        {{ form_widget(form.save, {attr: { class: 'save btn btn-default'} }) }}
+    </div>
+    {{ form_row(form._token) }}
+    {{ form_end(form, {render_rest:false}) }}
+{% endblock %}

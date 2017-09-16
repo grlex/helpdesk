@@ -1,0 +1,14 @@
+{% extends 'main_template.html.twig' %}
+{% block title 'misc.request.error'|trans %}
+{% block content %}
+    <div class="row">
+        <div class="jumbotron">
+            <div class="text-center"><i class="fa fa-5x fa-frown-o" style="color:#d9534f;"></i></div>
+            <h1 class="text-center">{{ status_code ~' '~ status_text }}<p> </p><p><small class="text-center"> {{ 'oh.noes.everithing.broke'|trans }}</small></p></h1>
+            <p class="text-center">{{ 'try.pressing.the.back.button.or.clicking.on.this.button'|trans }}</p>
+            <p class="text-center"><a class="btn btn-primary" href="/"><i class="fa fa-home"></i> {{ 'take.me.home'|trans }}</a></p>
+        </div>
+    </div>
+{% endblock %}
+
+

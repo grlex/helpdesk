@@ -9,14 +9,17 @@
 namespace AppBundle\Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class Category
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="category")
+ * @UniqueEntity("name", message="category.already.exists")
  */
-class Category {
+class Category extends BaseEntity implements NamedEntityInterface {
+    protected $fields = ['id', 'name'];
     /**
      * @var int
      * @ORM\Id
@@ -64,5 +67,9 @@ class Category {
     public function getName()
     {
         return $this->name;
+    }
+
+    public function __toString(){
+        return $this->getName();
     }
 }

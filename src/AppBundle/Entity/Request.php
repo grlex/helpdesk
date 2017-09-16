@@ -16,7 +16,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="request")
  */
-class Request {
+class Request extends BaseEntity{
+    protected $fields = ['id','name','description','comment','status', 'priority',
+                         'active', 'file','category','user','executor','lifecycle'];
     const STATUS_OPENED = 1;
     const STATUS_DISTRIBUTED = 2;
     const STATUS_PROCESSED = 3;
@@ -43,56 +45,54 @@ class Request {
     private $name;
     /**
      * @var string Описание заявки
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=200, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
      */
     private $description;
 
     /**
-     * @var string Комментарий к заявке
-     * @ORM\Column(type="string", length=200)
-     * @Assert\NotBlank(message="entity.common.notBlank")
-     * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
+     * @var Comment[] Комментарий к заявке
+     * @ORM\OneToMany(targetEntity="Comment", mappedBy="request")
      */
-    private $comment;
+    private $comments;
     /**
      * @var int Статус
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={ "default": 1} )
      */
     private $status;
     /**
      * @var int Приоритет
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={ "default": 2} )
      */
     private $priority;
     /**
      * @var Active Кабинет в отделе
      * @ORM\ManyToOne(targetEntity="Active")
-     * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $active;
     /**
      * @var string Файл с подробностями проблемы
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=200, nullable=true)
      */
     private $file;
     /**
      * @var Category Категрия проблемы
      * @ORM\ManyToOne(targetEntity="Category")
-     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $category;
     /**
      * @var User Автор заявки о проблеме
      * @ORM\OneToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $user;
     /**
      * @var User Кто будет решать проблему
      * @ORM\OneToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $executor;
 
@@ -104,6 +104,19 @@ class Request {
     private $lifecycle;
 
 
+
+    public function __toString(){
+        return $this->getName();
+    }
+
+    /* ====================================== ============= */
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Get id
@@ -161,30 +174,6 @@ class Request {
     public function getDescription()
     {
         return $this->description;
-    }
-
-    /**
-     * Set comment
-     *
-     * @param string $comment
-     *
-     * @return Request
-     */
-    public function setComment($comment)
-    {
-        $this->comment = $comment;
-
-        return $this;
-    }
-
-    /**
-     * Get comment
-     *
-     * @return string
-     */
-    public function getComment()
-    {
-        return $this->comment;
     }
 
     /**
@@ -257,6 +246,40 @@ class Request {
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Add comment
+     *
+     * @param \AppBundle\Entity\Comment $comment
+     *
+     * @return Request
+     */
+    public function addComment(\AppBundle\Entity\Comment $comment)
+    {
+        $this->comments[] = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param \AppBundle\Entity\Comment $comment
+     */
+    public function removeComment(\AppBundle\Entity\Comment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getComments()
+    {
+        return $this->comments;
     }
 
     /**

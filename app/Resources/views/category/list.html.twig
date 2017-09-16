@@ -1,0 +1,26 @@
+{% extends 'main_template.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% from 'table-panel-macro.html.twig' import table_panel %}
+    {% set headers=['id','name'] %}
+    {{ table_panel({
+        'headers': headers,
+        'items': entities,
+        'newBaseUri': '/category/new',
+        'editBaseUri': '/category/edit',
+        'removeBaseUri': '/category/remove',
+        'currentPage': currentPage,
+        'totalPages': totalPages,
+        'panelTitle': 'misc.categories',
+        'removeConfirmationMessage': 'items.remove-category.confirmation.%item%.%id%',
+        'removeForm': removeForm
+        })
+    }}
+{% endblock %}

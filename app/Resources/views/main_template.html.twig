@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+
+    </style>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+{% endblock %}
+
+
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-menu" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-bell"></span></a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="main-menu">
+                        <div class="nav navbar-text visible-xs">
+                            {% block navbar_user %}
+                                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <span>{{ app.user.name }}</span>
+                                {% else %}
+                                    <a href="/account/login">{{ 'main-menu.login'|trans }}</a>
+                                {% endif %}
+
+                            {% endblock %}
+                        </div>
+                        {{ knp_menu_render('AppBundle:Builder:mainMenu',{'currentClass': 'active', 'template': '_themes/nav_knp_menu.html.twig'}) }}
+                        <div class="nav navbar-text navbar-right hidden-xs">
+                            {{ block('navbar_user') }}
+                        </div>
+                    </div><!-- /.navbar-collapse -->
+
+                </div><!-- /.container-fluid -->
+            </nav>
+        </div>
+        {% block content %}{% endblock %}
+
+    </div>
+{% endblock %}
+

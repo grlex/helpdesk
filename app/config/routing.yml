@@ -3,3 +3,11 @@ app:
     type: annotation
 main_logout:
   path: '/account/logout'
+
+ # app/config/routing_dev.yml
+_errors:
+  resource: "@TwigBundle/Resources/config/routing/errors.xml"
+  prefix:   /_error
+
+entity_routes:
+  resource: "entity_controllers_routes.yml"

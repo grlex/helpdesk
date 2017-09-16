@@ -1,0 +1,41 @@
+{% extends 'main_template.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/comment_collection_row.css') }}"/>
+
+    <style>
+        form{
+            max-width: 800px;
+        }
+        .save, .cancel{
+            margin: 0 1em;
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/comments_collection_row.js') }}"></script>
+    <script src="{{ asset('js/tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ asset('js/tinymce/jquery.tinymce.min.js') }}"></script>
+    <script>
+        $('.chosen-element').chosen({
+            allow_single_deselect: true,
+            width: '100%'
+        });
+        $('.tinymce-element, ' +
+          '.tinymce-container textarea').tinymce({
+            menubar: false,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor textcolor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table contextmenu paste code'
+            ],
+            toolbar: 'insert | undo redo |  styleselect | backcolor  | bullist numlist outdent indent | removeformat',
+            branding: false,
+            images_upload_url: '/request/upload-image'
+
+        });
+    </script>
+{% endblock %}

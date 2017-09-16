@@ -1,0 +1,22 @@
+{% extends 'request/base.html.twig' %}
+
+
+{% block content %}
+    {% from 'table-panel-macro.html.twig' import table_panel %}
+    {% set headers = ['id','name','status']%}
+    {# ['id','name','description','comment','status', 'priority',
+    'active', 'file','category','user','executor','lifecycle'] %} #}
+    {{ table_panel({
+        'headers': headers,
+        'items': entities,
+        'newBaseUri': '/request/new',
+        'editBaseUri': '/request/edit',
+        'removeBaseUri': '/request/remove',
+        'currentPage': currentPage,
+        'totalPages': totalPages,
+        'panelTitle': 'misc.requests',
+        'removeConfirmationMessage': 'items.remove-request.confirmation.%item%.%id%',
+        'removeForm': removeForm
+        })
+    }}
+{% endblock %}

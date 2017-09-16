@@ -38,7 +38,7 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     form_themes:
-        - 'bootstrap_3_horizontal_layout_m.html.twig'
+        - '_themes/bootstrap_3_horizontal_layout_m.html.twig'
 
 # Doctrine Configuration
 doctrine:

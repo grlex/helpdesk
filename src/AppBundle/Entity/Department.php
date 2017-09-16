@@ -9,14 +9,17 @@
 namespace AppBundle\Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class Department
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="department")
+ * @UniqueEntity("name", message="department.already.exists")
  */
-class Department {
+class Department extends BaseEntity {
+    protected $fields = ['id', 'name'];
     /**
      * @var int
      * @ORM\Id
@@ -67,5 +70,9 @@ class Department {
     public function getName()
     {
         return $this->name;
+    }
+
+    public function __toString(){
+        return $this->getName();
     }
 }

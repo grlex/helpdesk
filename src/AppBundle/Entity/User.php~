@@ -7,17 +7,24 @@
  */
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class User
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="user")
+ * @UniqueEntity("login", message="user.already.exists")
  */
-class User implements UserInterface {
+class User {
+    protected $fields = ['id', 'name', 'login', 'password', 'role', 'department', 'position' ];
+    public function __construct(){
+        $this->roles = new ArrayCollection();
+    }
     /**
      * @var int
      * @ORM\Id
@@ -43,7 +50,7 @@ class User implements UserInterface {
      * @var string Пароль пользователя
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank(message="entity.common.notBlank")
-     * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
+     * @Assert\Length( max = 60, maxMessage="model.common.strLength.{{limit}}" )
      */
     private $password;
     /**
@@ -61,21 +68,19 @@ class User implements UserInterface {
     private $department;
 
     /**
-     * @var Role Роль пользователя в компании
-     * @ORM\ManyToOne(targetEntity="Role")
+     * @var Role[] Роль пользователя в компании
+     * @ORM\ManyToMany(targetEntity="Role")
      * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
      */
-    private $role;
+    private $roles;
 
 
     /**
-     * Returns the roles granted to the user.
-     * @return (Role|string)[] The user roles
+     * @var bool Weather user is removed
+     * @ORM\Column(type="boolean" )
      */
-    public function getRoles()
-    {
-        return  array( $this->role );
-    }
+    private $removed=0;
+
 
     /**
      * @return string The password
@@ -107,5 +112,19 @@ class User implements UserInterface {
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+
+    /*88888888888888888888888888888888888888888888888*/
+
+    public function __toString(){
+        return $this->getName();
+    }
+
+    public function remove(){
+        $this->isRemoved = true;
+    }
+    public function isRemoved(){
+        return $this->isRemoved;
     }
 }

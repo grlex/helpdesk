@@ -1,1 +1,45 @@
-form.common.login: Логин
+main-menu.login: Войти
+misc.users: Пользователи
+misc.departments: Отделы
+misc.actives: Кабинты в отделах
+misc.categories: Категории
+misc.requests: Заявки
+misc.request.error: Во время обработки запроса произошла ошибка
+
+oh.noes.everithing.broke: О господи, все сломалось!
+try.pressing.the.back.button.or.clicking.on.this.button: Попробуйте нажать клавишу BACKSPACE или кнопку ниже
+take.me.home: Вернуться на главную
+items.new: Добавить
+items.edit: Изменить
+items.remove: Удалить
+items.pagination.page: Страница
+items.pagination.of: из
+items.not-found: Записей не найдено
+
+
+
+items.remove.confirmation.title: Удаление
+items.remove.confirmation.accept: Удалить
+items.remove.confirmation.discard: Отмена
+items.remove.confirmation.%item%.%id%: Вы действительно хотите удалить запись  %item%[%id]
+items.remove-user.confirmation.%item%.%id%: Вы действительно хотите удалить пользователя  %item%[%id]
+items.remove-department.confirmation.%item%.%id%: Вы действительно хотите удалить отдел  %item%[%id]
+items.remove-active.confirmation.%item%.%id%: Вы действительно хотите удалить кабинет  %item%[%id]
+items.remove-category.confirmation.%item%.%id%: Вы действительно хотите удалить категорию  %item%[%id]
+
+users.removing: Удаление пользователя
+users.removing.confirmation: Вы действительно хотите удалить пользователя
+user.not.found: Пользователь не найден
+departments.removing: Удаление отдела
+departments.removing.confirmation: Вы действительно хотите удалить отдел
+actives.removing: Удаление кабинета
+actives.removing.confirmation: Вы действительно хотите удалить кабинет
+categories.removing: Удаление категории
+categories.removing.confirmation: Вы действительно хотите удалить категорию
+requests.removing: Удаление заявки
+requests.removing.confirmation: Вы действительно хотите удалить заявку
+
+ROLE_ADMIN: Администратор
+ROLE_MODERATOR: Модератор
+ROLE_EXECUTOR: Испольнитель
+ROLE_USER: Пользователь

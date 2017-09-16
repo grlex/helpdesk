@@ -3,6 +3,51 @@ form:
     common:
         login: Логин
         password: Пароль
+        cancel: Отмена
+        save: Сохранить
+        add: Добавить
+        remove: Удалить
+
     login:
         submit: Войти
         remember_me: Запомнить меня
+        account-removed: Данный аккаунт был удален
+    user:
+        name: Имя пользователя
+        login: Логин
+        password: Пароль
+        password-repeat: Повторите пароль
+        roles: Роли
+        choose-roles: Выберите роли
+        department: Отдел
+        position: Должность
+    department:
+        name: Название
+    active:
+        department: Выбирете отдел
+        number: Номер кабинета
+    category:
+        name: Название
+    request:
+        name: Название
+        description: Описание
+        priority: Приоритет
+        priority.critical: Очень важный
+        priority.high: Важный
+        priority.medium: Обычный
+        priority.low: Низкий
+        active: Кабинет и отдел
+        file: Выберите файл
+        category: Категория проблемы в заявке
+        user: Инициатор заявки
+        executor: Исполнитель заявки
+        comments: Комментарии
+        comments.new.title: Добавить комментарий
+        comments.new.clear: Очистить
+        comments.new.submit: Добавить
+    comment_collection:
+        reply.title: Ответить
+        edit.title: Редактировать
+        remove.title: Удалить
+
+

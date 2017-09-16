@@ -1,0 +1,22 @@
+main.definition: Справочник
+main.request: Заявки
+main.user: Пользователи
+main.logout: Выйти
+main:
+    department:
+        list: Отделы
+    active:
+        list: Кабинеты в отделах
+    category:
+        list: Категории
+    request:
+        my: Мои
+        new: Новая
+        list: Весь список
+        assign: Распределить
+        process: Обработать
+    user:
+        new: Добавить
+        list: Весь список
+
+

@@ -33,7 +33,6 @@ class AccountController extends Controller {
 
         $form = $this->createForm(LoginType::class, ['login'=>$lastUsername]);
 
-
         if($error) {
             $errorMessage = $this->get('translator')->trans($error->getMessage(),array(),'forms');
             $form->addError(new FormError($errorMessage));
@@ -42,5 +41,23 @@ class AccountController extends Controller {
             'form'=>$form->createView(),
         ));
     }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/account/login-removed/{login}")
+     */
+    public function loginRemovedAction(Request $request, $login){
+
+
+        $form = $this->createForm(LoginType::class, ['login'=>$login], array('action'=>'/account/login'));
+
+        $form->addError(new FormError($this->get('translator')->trans('form.login.account-removed',[],'forms')));
+
+        return $this->render('account/login.html.twig', array(
+            'form'=>$form->createView(),
+        ));
+    }
+
 
 } 

@@ -9,14 +9,16 @@
 namespace AppBundle\Entity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * Class Active
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="active")
+ * @UniqueEntity({"department","cabNumber"}, message="active.already.exists")
  */
-class Active {
+class Active extends BaseEntity implements NamedEntityInterface {
+    protected $fields = ['id', 'department', 'cabNumber'];
     /**
      * @var int
      * @ORM\Id
@@ -34,7 +36,7 @@ class Active {
     /**
      * @var Department Отдел компании
      * @ORM\ManyToOne(targetEntity="Department")
-     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      */
     private $department;
@@ -95,5 +97,12 @@ class Active {
     public function getDepartment()
     {
         return $this->department;
+    }
+
+    public function __toString(){
+        return $this->getDepartment()->getName().'/'.$this->getCabNumber();
+    }
+    public function getName(){
+        return $this->getCabNumber();
     }
 }

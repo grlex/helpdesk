@@ -1,3 +1,6 @@
+imports:
+  - { resource: "entity_controllers_access_control.yml" }
+
 # To get started with security, check out the documentation:
 # https://symfony.com/doc/current/security.html
 security:

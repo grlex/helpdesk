@@ -1,0 +1,74 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Alexey Grigoriev
+ * Date: 15.09.2017
+ * Time: 10:49
+ */
+
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * Class Comment
+ * @package AppBundle\Entity
+ * @ORM\Entity
+ * @ORM\Table(name="comment")
+ */
+class Comment
+{
+    /**
+     * @var int Id
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    /**
+     * @var Request
+     * @ORM\ManyToOne(targetEntity="Request", inversedBy="comments")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     */
+    private $request;
+    /**
+     * @var User
+     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
+     */
+    private $author;
+    /**
+     * @var string Text of the comment
+     * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     */
+    private $content;
+    /**
+     * @var \DateTime Time when comment was added
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank()
+     */
+    private $datetime;
+
+    /**
+     * @var Comment Parent of this comment
+     * @ORM\ManyToOne(targetEntity="comment", inversedBy="parentComment")
+     * @orm\joinColumn(onDelete="CASCADE")
+     */
+    private $parentComment;
+    /**
+     * @return Comment[] Replies on this comment
+     * @ORM\OneToMany(targetEntity="Comment", mappedBy="parentComment")
+     */
+    private $replies;
+
+    public function __toString()
+    {
+        return '';//$this->getContent();
+    }
+
+
+    // ===================================== ===================
+
+
+}

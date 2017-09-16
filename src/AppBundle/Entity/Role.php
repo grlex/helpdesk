@@ -10,12 +10,14 @@ namespace AppBundle\Entity;
 use Symfony\Component\Security\Core\Role\RoleInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class Role
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="role")
+ * @UniqueEntity("name")
  */
 class Role implements RoleInterface {
     /**
@@ -70,5 +72,8 @@ class Role implements RoleInterface {
     public function getName()
     {
         return $this->name;
+    }
+    public function __toString(){
+        return $this->getName();
     }
 }

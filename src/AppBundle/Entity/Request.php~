@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="request")
  */
 class Request {
+    protected $fields = ['id','name','description','comment','status', 'priority',
+                         'active', 'file','category','user','executor','lifecycle'];
     const STATUS_OPENED = 1;
     const STATUS_DISTRIBUTED = 2;
     const STATUS_PROCESSED = 3;
@@ -43,56 +45,54 @@ class Request {
     private $name;
     /**
      * @var string Описание заявки
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=200, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
      */
     private $description;
 
     /**
-     * @var string Комментарий к заявке
-     * @ORM\Column(type="string", length=200)
-     * @Assert\NotBlank(message="entity.common.notBlank")
-     * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
+     * @var Comment[] Комментарий к заявке
+     * @ORM\OneToMany(targetEntity="Comment", mappedBy="request")
      */
-    private $comment;
+    private $comments;
     /**
      * @var int Статус
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={ "default": 1} )
      */
     private $status;
     /**
      * @var int Приоритет
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={ "default": 2} )
      */
     private $priority;
     /**
      * @var Active Кабинет в отделе
      * @ORM\ManyToOne(targetEntity="Active")
-     * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $active;
     /**
      * @var string Файл с подробностями проблемы
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=200, nullable=true)
      */
     private $file;
     /**
      * @var Category Категрия проблемы
      * @ORM\ManyToOne(targetEntity="Category")
-     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $category;
     /**
      * @var User Автор заявки о проблеме
      * @ORM\OneToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $user;
     /**
      * @var User Кто будет решать проблему
      * @ORM\OneToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $executor;
 
@@ -104,4 +104,10 @@ class Request {
     private $lifecycle;
 
 
+
+    public function __toString(){
+        return $this->getName();
+    }
+
+    /* ====================================== ============= */
 }

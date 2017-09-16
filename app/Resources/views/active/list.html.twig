@@ -1,0 +1,26 @@
+{% extends 'main_template.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% from 'table-panel-macro.html.twig' import table_panel %}
+    {% set headers=['id','department','cabNumber'] %}
+    {{ table_panel({
+        'headers': headers,
+        'items': entities,
+        'newBaseUri': '/active/new',
+        'editBaseUri': '/active/edit',
+        'removeBaseUri': '/active/remove',
+        'currentPage': currentPage,
+        'totalPages': totalPages,
+        'panelTitle': 'misc.actives',
+        'removeConfirmationMessage': 'items.remove-active.confirmation.%item%.%id%',
+        'removeForm': removeForm
+        })
+    }}
+{% endblock %}

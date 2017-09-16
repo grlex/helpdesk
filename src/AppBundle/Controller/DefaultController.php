@@ -26,6 +26,13 @@ class DefaultController extends Controller
      * @Security("has_role('ROLE_USER')")
      */
     public function securedAction(){
+        /*$checker = $this->get('security.authorization_checker');
+        $isFully = $checker->isGranted('IS_AUTHENTICATED_FULLY') ? 'yes' : 'no';
+        $isRemembered = $checker->isGranted('IS_AUTHENTICATED_REMEMBERED') ? 'yes' : 'no';
+        $isAnonymously = $checker->isGranted('IS_AUTHENTICATED_ANONYMOUSLY') ? 'yes' : 'no';
+        printf('Authenticated fully: %s',$isFully);
+        printf('Authenticated remembered: %s',$isRemembered);
+        printf('Authenticated anonymously: %s',$isAnonymously);*/
         return new Response('Access granted!');
     }
 }

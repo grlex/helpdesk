@@ -1,0 +1,161 @@
+{% extends '_themes/bootstrap_3_horizontal_layout_m.html.twig' %}
+
+
+{% block form_row -%}
+    <div class="form-group{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+        {# form_label is in request_comments block in this theme file below #}
+        {{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock form_row %}
+
+
+{% block form_label -%}
+    {% spaceless %}
+        {% if label is same as(false) %}
+
+        {% else %}
+            {{- block('form_label', 'bootstrap_3_layout.html.twig') -}}
+        {% endif %}
+    {% endspaceless %}
+{%- endblock form_label %}
+
+{%- block comment_collection_widget -%}
+    {% if prototype is defined %}
+        {#- set attr = attr|merge({'data-prototype': form_row(prototype) }) -#}
+    {% endif %}
+
+    {# form_widget_compound #}
+    {%- set attr = attr|merge({class: 'comment-collection ' ~ attr.class }) -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- if form.parent is empty -%}
+            {{ form_errors(form) }}
+        {%- endif -%}
+        {{- block('request_comments') }}
+        {{- form_rest(form) -}}
+    </div>
+{%- endblock comment_collection_widget -%}
+
+
+{%- block request_comments -%}
+    {% from _self import render_comment %}
+    {%- set prototype =
+            '<div id="request_new_comments___name__">
+
+                    <select id="request_new_comments___name___author"
+                            name="request_new[comments][__name__][author]"
+                            class="author">
+                        <option selected value="%user_id%">Me me and again me!</option>
+                    </select>
+
+                    <textarea id="request_new_comments___name___content"
+                              name="request_new[comments][__name__][content]"
+                              class="content">
+                    </textarea>
+
+                    <div id="request_new_comments___name___datetime">
+                        <select id="request_new_comments___name___datetime_date_year"
+                                name="request_new[comments][__name__][datetime][date][year]">
+                            <option class="datetime_year" selected value="2012">2012</option>
+                        </select>
+                        <select id="request_new_comments___name___datetime_date_month"
+                                name="request_new[comments][__name__][datetime][date][month]">
+                            <option class="datetime_month" selected value="1">Jan</option>
+                        </select>
+                        <select id="request_new_comments___name___datetime_date_day"
+                                name="request_new[comments][__name__][datetime][date][day]">
+                            <option class="datetime_day" selected value="1">1</option>
+                        </select>
+                        <select id="request_new_comments___name___datetime_time_hour"
+                                name="request_new[comments][__name__][datetime][time][hour]">
+                            <option class="datetime_hour" selected value="0">00</option>
+                        </select>:
+                        <select id="request_new_comments___name___datetime_time_minute"
+                                name="request_new[comments][__name__][datetime][time][minute]">
+                            <option class="datetime_minute" selected value="0">00</option>
+                        </select>
+                    </div>
+
+                    <div id="request_new_comments___name___replies"
+                         class="replies">
+                    </div>
+            </div>'|onespace|replace({'%user_id%':app.user.id})
+     -%}
+    <div class="comment-container panel panel-default"
+         data-username = "{{ app.user ?: '<no user>' }}"
+         data-locale = "{{ app.request.locale }}"
+         data-comment-count = "{{ form|length }}"
+         data-prototype = '{{ prototype }}'>
+        <div class="panel-heading"><h3>{{ form_label(form) }}</h3></div>
+        <div class="panel-body">
+            <ul id="comments-list" class="comments-list list-unstyled">
+                <template>
+                    <li>
+                        <div class="comment-main-level">
+                            <div class="comment-box">
+                                <div class="comment-head">
+                                    <h6 class="comment-name by-author"></h6>
+                                    <span class="comment-time"></span>
+                                    <i class="remove fa fa-times" title="form.comment_collection.remove.title"></i>
+                                    <i class="edit fa fa-pencil" title="form.comment_collection.edit.title"></i>
+                                    <i class="reply fa fa-reply" title="form.comment_collection.reply.title"></i>
+                                </div>
+                                <div class="comment-content"></div>
+                                <div class="comment-form-data" ></div>
+                            </div>
+                        </div>
+                        <!-- Respuestas de los comentarios -->
+                        <ul class="comments-list reply-list">
+
+                        </ul>
+                    </li>
+                </template>
+                {% for comment in form %}
+                    {{ render_comment(comment) }}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="panel-footer">
+            <h3>
+                <span class="title">{{ new_comment_title | trans({}, translation_domain) }}</span>
+            </h3>
+            <textarea class="new-comment"></textarea>
+            <div class="control-buttons">
+                <div class="btn-group" role="group">
+                    <button type="button"  class="clear btn btn-default">{{ new_comment_clear_text | trans({}, translation_domain) }}</button>
+                    <button type="button" class="submit btn btn-primary">{{ new_comment_submit_text | trans({}, translation_domain) }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{%- endblock request_comments -%}
+
+
+{% macro render_comment(comment) %}
+    <li>
+        <div class="comment-main-level">
+            <div class="comment-box">
+                <div class="comment-head">
+                    <h6 class="comment-name by-author">comment.author.name.vars.value</h6>
+                    <span class="comment-time">comment.datetime.vars.value</span>
+                    <i class="fa fa-reply"></i>
+                    <i class="fa fa-heart"></i>
+                </div>
+                <div class="comment-content">
+                    comment.content.vars.value
+                </div>
+            </div>
+        </div>
+        <!-- Respuestas de los comentarios -->
+        {% form_theme comment.replies 'form_div_layout.html.tiwg' %}
+        {% if comment.replies|length  %}
+            <ul class="comments-list reply-list">
+                {% for reply in comment.replies %}
+                    render_comment(reply)
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% endmacro %}

@@ -1,0 +1,7 @@
+new-user.passwords.must.be.equal: 'Пароли должны совпадать'
+
+
+user.already.exists: 'Пользователь с указанным логином уже существует'
+department.already.exists: 'Такой отдел уже добавлен'
+active.already.exists: 'Такой кабинет в данном отделе уже добавлен'
+category.already.exists: 'Такая категория уже добавлена'

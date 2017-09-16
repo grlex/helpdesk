@@ -1,0 +1,242 @@
+
+
+{% macro table_panel(params) %}
+    {% from _self import actionButton %}
+    <script>
+        function prepareRemovePopup(id, removeUri, bodyMessage){
+            $('#remove-popup .modal-body p')
+                    .text(bodyMessage);
+            $('#remove-popup .accept-button')
+                    .click(function() {
+                        $('#remove-popup .remove-item form .id').val(id);
+                        $('#remove-popup .remove-item form').attr('action',removeUri).submit();
+                    });
+        }
+    </script>
+
+    {% set params = {
+                        headers: [],
+                        items: [],
+                        visibleColumnNumbers: false,
+                        newBaseUri: null,
+                        editBaseUri: null,
+                        removeBaseUri: null,
+                        currentPage: 1,
+                        totalPages: 1,
+                        fieldsTrimming: [],
+                        panelTitle: 'items',
+                        newTitle: 'items.new',
+                        editTitle: 'items.edit',
+                        removeTitle: 'items.remove',
+                        notFoundTitle: 'items.not-found',
+                        removeConfirmationMessage: 'items.remove.confirmation.%item%.%id%',
+                        nameField: 'name',
+                        newButtonVisibleForRoles: ['ROLE_ADMIN'],
+                        editButtonVisibleForRoles: ['ROLE_ADMIN'],
+                        removeButtonVisibleForRoles: ['ROLE_ADMIN'],
+                        additionalActionButtons: [],
+                        formName: 'form'
+
+                     }|merge(params) %}
+
+    {% set newButtonVisible = false %}
+    {% set editButtonVisible = false %}
+    {% set removeButtonVisible = false %}
+
+    {% for role in params.newButtonVisibleForRoles if app.user and newButtonVisible != true %}
+        {% set newButtonVisible = is_granted(role) ? true : false %}
+    {% endfor %}
+    {% for role in params.editButtonVisibleForRoles if app.user and editButtonVisible != true %}
+        {% set editButtonVisible = is_granted(role) ? true : false %}
+    {% endfor %}
+    {% for role in params.removeButtonVisibleForRoles if app.user and removeButtonVisible != true %}
+        {% set removeButtonVisible = is_granted(role) ? true : false %}
+    {% endfor %}
+
+
+
+    <div class="panel panel-default panel-table">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col col-xs-6">
+                    <h3 class="panel-title">{{ params.panelTitle|trans }}</h3>
+                </div>
+                <div class="col col-xs-6 text-right">
+                    {% if(params.newTitle and newButtonVisible) %}
+                        <a href="{{ params.newBaseUri }}" class="btn btn-sm btn-primary btn-create">{{ params.newTitle|trans() }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="panel-body" style="overflow: auto">
+            <table class="table table-striped table-bordered table-list">
+                <thead>
+                <tr>
+                    <th><em class="glyphicon glyphicon-cog"></em></th>
+
+                    {% for header in params.headers %}
+                        {% if  not params.visibleColumnNumbers or loop.index in  params.visibleColumnNumbers %}
+                            <th>{{ header|trans() }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+
+                {% set trimmingFields = params.fieldsTrimming|keys %}
+                {% for item in params.items  %}
+                    {% set fields = item|keys %}
+                    <tr>
+                        <td align="center">
+                            {% if editButtonVisible %}
+
+                                {{ actionButton({
+                                        href: 'id' in fields and params.editBaseUri ? '%s/%d'|format(params.editBaseUri,item.id)|raw ,
+                                        class: "btn btn-default",
+                                        title: params.editTitle|trans,
+                                        iconClass: "glyphicon glyphicon-pencil"
+                                }) }}
+                            {% endif %}
+                            {% if removeButtonVisible %}
+                                {% set removeItemUri = '%s/%d'|format(params.removeBaseUri, item.id)|raw %}
+                                {% set removeConfirmationMessage =  params.removeConfirmationMessage|trans({'%item%': item[params.nameField], '%id': item['id']})  %}
+                                {{ actionButton({
+                                        onclick: "prepareRemovePopup(%d, '%s','%s')"|format(item.id, removeItemUri, removeConfirmationMessage) ,
+                                        class: "btn btn-danger",
+                                        title: params.removeTitle|trans,
+                                        datas: {'toggle': 'modal', 'target': '#remove-popup'},
+                                        iconClass: "glyphicon glyphicon-trash"
+                                }) }}
+                            {% endif %}
+                        </td>
+                        {% for field in fields %}
+                            {% if not params.visibleColumnNumbers or loop.index in  params.visibleColumnNumbers %}
+                                {% set displayValue = item[field] is  typeof('array') ? item[field]|join(', ') : item[field] %}
+                                {% set displayValue = (field in trimmingFields and displayValue|length > params.fieldsTrimming[field]
+                                                 ? displayValue|slice(0,params.fieldsTrimming[field]) ~ '...'
+                                                 : displayValue) %}
+                                <td>
+                                    {{ displayValue }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="{{ params.headers|length ?: 1 }}">{{ params.notFoundTitle|trans() }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col col-xs-6 col-sm-4">
+                    {{ 'items.pagination.page'|trans() }}
+                    {{ params.currentPage }}
+                    {{ 'items.pagination.of'|trans() }}
+                    {{ params.totalPages }}
+                </div>
+                <div class="col col-xs-6 col-sm-8">
+                    {% set paginationMin = params.currentPage>2 ? params.currentPage-2 : 1 %}
+                    {% set paginationMax = (params.currentPage< params.totalPages-2) ? params.currentPage+2 : params.totalPages  %}
+                    {#
+                    <ul class="pagination  pull-right">
+                        <li><a class="btn btn-default {{ params.currentPage==1 ? 'disabled' }}"
+                               href="{{ app.request.uri }}?pageSize={{ params.items|length }}&page={{ params.currentPage-1 }}">«</a></li>
+                        {% for pageNumber in paginationMin..paginationMax %}
+                            <li class="hidden-xs">
+                                {% if pageNumber == params.currentPage %}
+                                    <span style="color:gray; font-size: 1.2em; background: #eee">{{ pageNumber }}</span>
+                                {% else %}
+                                    <a href="/user/list?pageSize={{ params.items|length }}&page={{ pageNumber }}">{{ pageNumber }}</a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                        <li><a class="btn btn-default {{ params.currentPage==params.totalPages ? 'disabled' }}"
+                               href="{{ app.request.pathInfo }}?pageSize={{ params.items|length }}&page={{ params.currentPage+1 }}">»</a></li>
+                    </ul>
+                    #}
+                    <nav class=" pull-right" aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li>
+                                <a {{ params.currentPage==1 ? 'disabled' }}
+                                   href="{{ app.request.uri }}?pageSize={{ params.items|length }}&page={{ params.currentPage-1 }}">
+                                    <span aria-hidden="true">&laquo;</span>
+                               </a>
+                            </li>
+                            {% for pageNumber in paginationMin..paginationMax %}
+                                <li class="hidden-xs">
+                                    {% if pageNumber == params.currentPage %}
+                                        <span style="color:gray; font-size: 1.2em; background: #eee">{{ pageNumber }}</span>
+                                    {% else %}
+                                        <a href="/user/list?pageSize={{ params.items|length }}&page={{ pageNumber }}">{{ pageNumber }}</a>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                            <li>
+                                <a {{ params.currentPage==params.totalPages ? 'disabled' }}
+                                    aria-label="Next"
+                                    href="{{ app.request.pathInfo }}?pageSize={{ params.items|length }}&page={{ params.currentPage+1 }}">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id='remove-popup' class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{{ 'items.remove.confirmation.title'|trans }}</h4>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ 'items.remove.confirmation.discard'|trans }}</button>
+                    <button type="button" class="accept-button btn btn-primary">{{ 'items.remove.confirmation.accept'|trans }}</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+        <div class="remove-item" style="display:none">
+            {{ form(params.removeForm) }}
+        </div>
+    </div><!-- /.modal -->
+{% endmacro %}
+
+
+{% macro actionButton(args) %}
+    {% set args = {
+        href: '',
+        onclick: '',
+        class: '',
+        title: '',
+        datas: [],
+        iconClass: '',
+
+    }|merge(args) %}
+
+    <a      href="{{ args.href }}"
+            onclick = "{{ args.onclick }}"
+            class="{{ args.class }} "
+            title="{{ args.title }}"
+
+    {% for data,value in args.datas  %}
+        data-{{ data }}="{{ value }}"
+    {% endfor %}
+    >
+    <em class="{{ args.iconClass }}"></em>
+    </a>
+{% endmacro %}
+
+
+
+
+

@@ -27,32 +27,32 @@ class Lifecycle {
     /**
      * @var \DateTime Добавлена пользователем
      * @Assert\DateTime(message="model.common.datetime.format")
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      *
      */
     public $opened;
     /**
      * @var \DateTime Назначена исполнителю
      * @Assert\DateTime(message="model.common.datetime.format")
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     public $distributed;
     /**
      * @var \DateTime Обработана исполнителем
      * @Assert\DateTime(message="model.common.datetime.format")
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     public $processing;
     /**
      * @var \DateTime Проверена
      * @Assert\DateTime(message="model.common.datetime.format")
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     public $checking;
     /**
      * @var \DateTime Закрыта
      * @Assert\DateTime(message="model.common.datetime.format")
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     public $closed;
 

@@ -7,17 +7,24 @@
  */
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Class User
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="user")
+ * @UniqueEntity("login", message="user.already.exists")
  */
-class User implements UserInterface {
+class User extends BaseEntity implements UserInterface {
+    protected $fields = ['id', 'name', 'login', 'password', 'roles', 'department', 'position' ];
+    public function __construct(){
+        $this->roles = new ArrayCollection();
+    }
     /**
      * @var int
      * @ORM\Id
@@ -41,14 +48,14 @@ class User implements UserInterface {
     private $login;
     /**
      * @var string Пароль пользователя
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=60)
      * @Assert\NotBlank(message="entity.common.notBlank")
-     * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
+     * @Assert\Length( max = 60, maxMessage="model.common.strLength.{{limit}}" )
      */
     private $password;
     /**
      * @var string Название должности пользователя
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
      */
@@ -56,26 +63,27 @@ class User implements UserInterface {
     /**
      * @var Department Отдель, в котором работает пользователь
      * @ORM\ManyToOne(targetEntity="Department")
-     * @ORM\JoinColumn(name="department_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="department_id", referencedColumnName="id", onDelete="SET NULL", nullable=true )
      */
     private $department;
 
     /**
-     * @var Role Роль пользователя в компании
-     * @ORM\ManyToOne(targetEntity="Role")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
+     * @var Role[] Роль пользователя в компании
+     * @ORM\ManyToMany(targetEntity="Role")
+     * ORM\JoinTable("user_role",
+     *      joinColumns = {@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns = { @ORM\JoinColumn(name="role_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
-    private $role;
+    private $roles;
 
 
     /**
-     * Returns the roles granted to the user.
-     * @return (Role|string)[] The user roles
+     * @var bool Weather user is removed
+     * @ORM\Column(type="boolean", options={ "default": 0 } )
      */
-    public function getRoles()
-    {
-        return  array( $this->role );
-    }
+    private $removed=0;
+
 
     /**
      * @return string The password
@@ -108,6 +116,12 @@ class User implements UserInterface {
     {
         // TODO: Implement eraseCredentials() method.
     }
+
+    public function __toString(){
+        return $this->getName();
+    }
+
+    /* ----------------------------------------- */
 
     /**
      * Get id
@@ -206,6 +220,30 @@ class User implements UserInterface {
     }
 
     /**
+     * Set removed
+     *
+     * @param boolean $removed
+     *
+     * @return User
+     */
+    public function setRemoved($removed)
+    {
+        $this->removed = $removed;
+
+        return $this;
+    }
+
+    /**
+     * Get removed
+     *
+     * @return boolean
+     */
+    public function isRemoved()
+    {
+        return $this->removed;
+    }
+
+    /**
      * Set department
      *
      * @param \AppBundle\Entity\Department $department
@@ -230,26 +268,39 @@ class User implements UserInterface {
     }
 
     /**
-     * Set role
+     * Add role
      *
      * @param \AppBundle\Entity\Role $role
      *
      * @return User
      */
-    public function setRole(\AppBundle\Entity\Role $role = null)
+    public function addRole(\AppBundle\Entity\Role $role)
     {
-        $this->role = $role;
+        $this->roles[] = $role;
 
         return $this;
     }
 
     /**
-     * Get role
+     * Remove role
      *
-     * @return \AppBundle\Entity\Role
+     * @param \AppBundle\Entity\Role $role
      */
-    public function getRole()
+    public function removeRole(\AppBundle\Entity\Role $role)
     {
-        return $this->role;
+        $this->roles->removeElement($role);
+    }
+
+    /**
+     * Get roles
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRoleCollection()
+    {
+        return $this->roles;
+    }
+    public function getRoles(){
+        return $this->roles->toArray();
     }
 }

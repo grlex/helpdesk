@@ -5,7 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}
-            <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ asset('/css/font-awesome.min.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ asset('/css/bootstrap.min.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ asset('/css/table-panel.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ asset('/css/chosen.min.css') }}"/>
             <style>
                 html{
                     height: 100%;
@@ -13,16 +16,36 @@
                 }
                 body{
                     min-height: 100%;
+                    min-width: 320px;
+                    position: relative;
+                    background: #F5F5F5;
+                    #font: 14px/1.5 sans-serif;
                 }
+
             </style>
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
     </head>
     <body>
-            {% block body %}
-            {% endblock %}
+        {#
+        {% spaceless %}
+            <div class="vertical-center-block-wrapper">
+                <div class="vertical-center-block">
+                    <div class="container">
+                        {% block body %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endspaceless %}
+        #}
+        {% block body %}
+        {% endblock %}
         {% block javascripts %}
             <script src="{{ asset('js/jquery-2.2.4.min.js') }}"></script>
+            <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('js/chosen.jquery.min.js') }}"></script>
         {% endblock %}
     </body>
 </html>

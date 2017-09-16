@@ -1,0 +1,102 @@
+#
+# UserController
+#
+user.list:
+  path: '/user/list'
+  defaults:
+      _controller: AppBundle:User:list
+user.new:
+  path: '/user/new'
+  defaults:
+      _controller: AppBundle:User:new
+user.edit:
+  path: '/user/edit/{id}'
+  defaults:
+      _controller: AppBundle:User:edit
+user.remove:
+  path: '/user/remove/{id}'
+  defaults:
+      _controller: AppBundle:User:remove
+
+#
+# DepartmentController
+#
+department.list:
+  path: '/department/list'
+  defaults:
+      _controller: AppBundle:Department:list
+department.new:
+  path: '/department/new'
+  defaults:
+      _controller: AppBundle:Department:new
+department.edit:
+  path: '/department/edit/{id}'
+  defaults:
+      _controller: AppBundle:Department:edit
+department.remove:
+  path: '/department/remove/{id}'
+  defaults:
+      _controller: AppBundle:Department:remove
+
+
+#
+# CategoryController
+#
+category.list:
+  path: '/category/list'
+  defaults:
+      _controller: AppBundle:Category:list
+category.new:
+  path: '/category/new'
+  defaults:
+      _controller: AppBundle:Category:new
+category.edit:
+  path: '/category/edit/{id}'
+  defaults:
+      _controller: AppBundle:Category:edit
+category.remove:
+  path: '/category/remove/{id}'
+  defaults:
+      _controller: AppBundle:Category:remove
+
+
+#
+# ActiveController
+#
+active.list:
+  path: '/active/list'
+  defaults:
+      _controller: AppBundle:Active:list
+active.new:
+  path: '/active/new'
+  defaults:
+      _controller: AppBundle:Active:new
+active.edit:
+  path: '/active/edit/{id}'
+  defaults:
+      _controller: AppBundle:Active:edit
+active.remove:
+  path: '/active/remove/{id}'
+  defaults:
+      _controller: AppBundle:Active:remove
+
+
+#
+# RequestController
+#
+request.list:
+  path: '/request/list'
+  defaults:
+      _controller: AppBundle:Request:list
+request.new:
+  path: '/request/new'
+  defaults:
+      _controller: AppBundle:Request:new
+request.edit:
+  path: '/request/edit/{id}'
+  defaults:
+      _controller: AppBundle:Request:edit
+request.remove:
+  path: '/request/remove/{id}'
+  defaults:
+      _controller: AppBundle:Request:remove
