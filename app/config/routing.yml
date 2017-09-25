@@ -11,3 +11,11 @@ _errors:
 
 entity_routes:
   resource: "entity_controllers_routes.yml"
+
+
+
+fos_comment_api:
+    type: rest
+    resource: "@FOSCommentBundle/Resources/config/routing.yml"
+    prefix: /api
+    defaults: { _format: html }

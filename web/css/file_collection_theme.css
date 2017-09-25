@@ -1,0 +1,61 @@
+.file-collection{
+    margin-left: 0;
+}
+.file-item{
+    margin-right: 1em;
+    margin-bottom: 1em;
+    cursor: pointer;
+    border-radius: 2px;
+
+}
+.file-item.new-file{
+    padding-right: 1em;
+}
+
+.file-item .status-icon{
+    display: none;
+}
+.file-item.success .success{
+    display: inline-block;
+    color: green;
+}
+.file-item.error .error{
+    display: inline-block;
+    color: red;
+}
+.file-item.wait .wait{
+    display: inline-block;
+    color: cornflowerblue;
+}
+
+.file-item .file-icon,
+.file-item::before{
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 2em;
+    height: 1em;
+    padding-right: 0.2em;
+}
+.file-item::before{
+    content: '';
+    font-size: 3em;
+}
+.file-item .file-icon{
+    width: 1em;
+    background: url("/images/new-file.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.file-item .file-name{
+}
+.file-remove{
+    display: inline-block;
+    padding: 0 1em;
+    transition: color .2s;
+}
+.file-remove:hover{
+    color: #9f0000;
+}
+.file-item input[type=file]{
+    display: none;
+}

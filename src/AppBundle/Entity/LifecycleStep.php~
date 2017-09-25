@@ -1,0 +1,62 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Alexey Grigoriev
+ * Date: 04.09.2017
+ * Time: 17:09
+ */
+
+namespace AppBundle\Entity;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Class Lifecycle
+ * @package AppBundle\Model
+ * @ORM\Entity
+ * @ORM\Table(name="lifecycle")
+ */
+class LifecycleStep {
+
+    /**
+     * @var int
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    protected $requestStatus;
+
+    /**
+     * @var \DateTime
+     * @Assert\DateTime(message="model.common.datetime.format")
+     * @ORM\Column(type="datetime")
+     */
+    protected $datetime;
+
+    /**
+     * @var Comment
+     * @ORM\OneToOne(targetEntity="Comment")
+     */
+    protected $comment;
+
+
+    /**
+     * @var Request
+     * @ORM\ManyToOne(targetEntity="Request", inversedBy="lifecycleSteps")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     */
+    protected $request;
+
+
+
+    // ------------------------ --------------- //
+
+
+   
+}

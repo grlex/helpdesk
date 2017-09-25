@@ -17,7 +17,7 @@
     {% set params = {
                         headers: [],
                         items: [],
-                        visibleColumnNumbers: false,
+                        fields: [],
                         newBaseUri: null,
                         editBaseUri: null,
                         removeBaseUri: null,
@@ -38,6 +38,8 @@
                         formName: 'form'
 
                      }|merge(params) %}
+
+
 
     {% set newButtonVisible = false %}
     {% set editButtonVisible = false %}
@@ -74,10 +76,9 @@
                 <tr>
                     <th><em class="glyphicon glyphicon-cog"></em></th>
 
-                    {% for header in params.headers %}
-                        {% if  not params.visibleColumnNumbers or loop.index in  params.visibleColumnNumbers %}
-                            <th>{{ header|trans() }}</th>
-                        {% endif %}
+
+                    {% for header in params.headers|default(params.fields) %}
+                        <th>{{ header|trans() }}</th>
                     {% endfor %}
                 </tr>
                 </thead>
@@ -85,7 +86,7 @@
 
                 {% set trimmingFields = params.fieldsTrimming|keys %}
                 {% for item in params.items  %}
-                    {% set fields = item|keys %}
+                    {% set fields = params.fields ?: item|keys %}
                     <tr>
                         <td align="center">
                             {% if editButtonVisible %}
@@ -110,20 +111,18 @@
                             {% endif %}
                         </td>
                         {% for field in fields %}
-                            {% if not params.visibleColumnNumbers or loop.index in  params.visibleColumnNumbers %}
-                                {% set displayValue = item[field] is  typeof('array') ? item[field]|join(', ') : item[field] %}
-                                {% set displayValue = (field in trimmingFields and displayValue|length > params.fieldsTrimming[field]
-                                                 ? displayValue|slice(0,params.fieldsTrimming[field]) ~ '...'
-                                                 : displayValue) %}
-                                <td>
-                                    {{ displayValue }}
-                                </td>
-                            {% endif %}
+                            {% set displayValue = item[field] is  typeof('array') ? item[field]|join(', ') : item[field] %}
+                            {% set displayValue = (field in trimmingFields and displayValue|length > params.fieldsTrimming[field]
+                                             ? displayValue|slice(0,params.fieldsTrimming[field]) ~ '...'
+                                             : displayValue) %}
+                            <td>
+                                {{ displayValue }}
+                            </td>
                         {% endfor %}
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="{{ params.headers|length ?: 1 }}">{{ params.notFoundTitle|trans() }}</td>
+                        <td colspan="{{ (params.fields|length ?: 1) +1 }}">{{ params.notFoundTitle|trans() }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -141,23 +140,7 @@
                 <div class="col col-xs-6 col-sm-8">
                     {% set paginationMin = params.currentPage>2 ? params.currentPage-2 : 1 %}
                     {% set paginationMax = (params.currentPage< params.totalPages-2) ? params.currentPage+2 : params.totalPages  %}
-                    {#
-                    <ul class="pagination  pull-right">
-                        <li><a class="btn btn-default {{ params.currentPage==1 ? 'disabled' }}"
-                               href="{{ app.request.uri }}?pageSize={{ params.items|length }}&page={{ params.currentPage-1 }}">«</a></li>
-                        {% for pageNumber in paginationMin..paginationMax %}
-                            <li class="hidden-xs">
-                                {% if pageNumber == params.currentPage %}
-                                    <span style="color:gray; font-size: 1.2em; background: #eee">{{ pageNumber }}</span>
-                                {% else %}
-                                    <a href="/user/list?pageSize={{ params.items|length }}&page={{ pageNumber }}">{{ pageNumber }}</a>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                        <li><a class="btn btn-default {{ params.currentPage==params.totalPages ? 'disabled' }}"
-                               href="{{ app.request.pathInfo }}?pageSize={{ params.items|length }}&page={{ params.currentPage+1 }}">»</a></li>
-                    </ul>
-                    #}
+
                     <nav class=" pull-right" aria-label="Page navigation">
                         <ul class="pagination">
                             <li>

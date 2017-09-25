@@ -14,5 +14,6 @@ use Doctrine\ORM\Mapping\Entity;
 abstract class BaseEntity implements NamedEntityInterface, \Iterator, \ArrayAccess, \Countable {
     use TraversableEntityTrait;
     protected $iterationPosition = 0;
-    protected $fields = ['id' ];
+    protected static $fields = ['id' ];
+
 } 

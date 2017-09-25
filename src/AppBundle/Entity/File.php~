@@ -1,0 +1,50 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Alexey Grigoriev
+ * Date: 21.09.2017
+ * Time: 9:56
+ */
+
+namespace AppBundle\Entity;
+
+
+use Doctrine\ORM\Mapping as ORM;
+/**
+ * Class Active
+ * @package AppBundle\Model
+ * @ORM\Entity
+ * @ORM\Table(name="file")
+ */
+class File {
+    /**
+     * @var int
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
+    protected $id;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=50)
+     */
+    protected $originalName;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=10)
+     */
+    protected $extension;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    protected $size;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", options={ "default":0})
+     */
+    protected $confirmed;
+
+    // =========================== ========== //
+
+}

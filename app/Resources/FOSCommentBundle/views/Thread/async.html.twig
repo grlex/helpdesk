@@ -1,0 +1,40 @@
+{#
+
+ This file is part of the FOSCommentBundle package.
+
+ (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
+
+ This source file is subject to the MIT license that is bundled
+ with this source code in the file LICENSE.
+
+#}
+
+
+
+<div id="fos_comment_thread"></div>
+
+<script type="text/javascript">
+    // thread id
+    var fos_comment_thread_id = '{{ id }}';
+
+    // api base url to use for initial requests
+    var fos_comment_thread_api_base_url = '{{ path('fos_comment_get_threads') }}';
+
+    var fos_comment_container_selector = '#fos_comment_thread .comments_container';
+
+
+
+    // Snippet for asynchronously loading the comments
+
+
+    window.addEventListener('load',
+    (function() {
+        var fos_comment_script = document.createElement('script');
+        fos_comment_script.async = true;
+        fos_comment_script.src = '{{ asset('js/comments.js') }}';
+        fos_comment_script.type = 'text/javascript';
+
+        document.querySelector('body').appendChild(fos_comment_script);
+    }));
+
+</script>

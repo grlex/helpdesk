@@ -10,8 +10,16 @@ namespace AppBundle\Entity;
 
 use FOS\CommentBundle\Entity\Thread as BaseThread;
 use Doctrine\ORM\Mapping as ORM;
+use FOS\CommentBundle\Model\RawCommentInterface;
+use FOS\CommentBundle\Model\SignedCommentInterface;
 
-class Thread extends BaseThread {
+/**
+ * Class Thread
+ * @package AppBundle\Entity
+ * @ORM\Entity
+ * ORM\Table(name="thread")
+ */
+class Thread extends BaseThread  {
 
     /**
      * @var int
@@ -20,4 +28,6 @@ class Thread extends BaseThread {
      *
      */
     protected $id;
-} 
+
+
+}

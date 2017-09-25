@@ -18,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity({"department","cabNumber"}, message="active.already.exists")
  */
 class Active extends BaseEntity implements NamedEntityInterface {
-    protected $fields = ['id', 'department', 'cabNumber'];
+    protected static $fields = ['id', 'department', 'cabNumber'];
     /**
      * @var int
      * @ORM\Id

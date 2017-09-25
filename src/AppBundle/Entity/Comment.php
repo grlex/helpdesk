@@ -8,7 +8,14 @@
 
 namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use FOS\CommentBundle\Entity\Thread;
+use FOS\CommentBundle\Model\RawCommentInterface;
+use FOS\CommentBundle\Model\SignedCommentInterface;
+use FOS\CommentBundle\Model\ThreadInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use FOS\CommentBundle\Entity\Comment as BaseComment;
+use FOS\CommentBundle\Entity\Thread as BaseThread;
 
 /**
  * Class Comment
@@ -16,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity
  * @ORM\Table(name="comment")
  */
-class Comment
+class Comment extends BaseComment implements SignedCommentInterface, RawCommentInterface
 {
     /**
      * @var int Id
@@ -24,51 +31,45 @@ class Comment
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
-    /**
-     * @var Request
-     * @ORM\ManyToOne(targetEntity="Request", inversedBy="comments")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    private $request;
+    protected $id;
     /**
      * @var User
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      */
-    private $author;
-    /**
-     * @var string Text of the comment
-     * @ORM\Column(type="text")
-     * @Assert\NotBlank()
-     */
-    private $content;
-    /**
-     * @var \DateTime Time when comment was added
-     * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
-     */
-    private $datetime;
+    protected $author;
 
     /**
-     * @var Comment Parent of this comment
-     * @ORM\ManyToOne(targetEntity="comment", inversedBy="parentComment")
-     * @orm\joinColumn(onDelete="CASCADE")
+     * @var BaseThread
+     * @ORM\ManyToOne(targetEntity="Thread")
      */
-    private $parentComment;
+    protected $thread;
+
     /**
-     * @return Comment[] Replies on this comment
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="parentComment")
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
-    private $replies;
+    protected $rawBody;
+
+    /**
+     * @var File[] Файлы, прикрепленные к заявке
+     * @ORM\ManyToMany(targetEntity="File", orphanRemoval=true)
+     * @ORM\JoinTable(name="comment_file",
+     *      joinColumns = { @ORM\JoinColumn(name="comment_id", referencedColumnName="id", onDelete="CASCADE") },
+     *      inverseJoinColumns = { @ORM\JoinColumn(name="file_id", referencedColumnName="id", onDelete="CASCADE") } )
+     */
+    protected $files;
+
 
     public function __toString()
     {
-        return '';//$this->getContent();
+        return $this->getBody();
     }
 
 
     // ===================================== ===================
+
+
 
 
     /**
@@ -76,7 +77,7 @@ class Comment
      */
     public function __construct()
     {
-        $this->replies = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->files = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -90,85 +91,37 @@ class Comment
     }
 
     /**
-     * Set content
+     * Set rawBody
      *
-     * @param string $content
+     * @param string $rawBody
      *
      * @return Comment
      */
-    public function setContent($content)
+    public function setRawBody($rawBody)
     {
-        $this->content = $content;
+        $this->rawBody = $rawBody;
 
         return $this;
     }
 
     /**
-     * Get content
+     * Get rawBody
      *
      * @return string
      */
-    public function getContent()
+    public function getRawBody()
     {
-        return $this->content;
-    }
-
-    /**
-     * Set datetime
-     *
-     * @param \DateTime $datetime
-     *
-     * @return Comment
-     */
-    public function setDatetime($datetime)
-    {
-        $this->datetime = $datetime;
-
-        return $this;
-    }
-
-    /**
-     * Get datetime
-     *
-     * @return \DateTime
-     */
-    public function getDatetime()
-    {
-        return $this->datetime;
-    }
-
-    /**
-     * Set request
-     *
-     * @param \AppBundle\Entity\Request $request
-     *
-     * @return Comment
-     */
-    public function setRequest(\AppBundle\Entity\Request $request = null)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * Get request
-     *
-     * @return \AppBundle\Entity\Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
+        return $this->rawBody;
     }
 
     /**
      * Set author
      *
-     * @param \AppBundle\Entity\User $author
+     * @param UserInterfacer $author
      *
      * @return Comment
      */
-    public function setAuthor(\AppBundle\Entity\User $author = null)
+    public function setAuthor(UserInterface $author = null)
     {
         $this->author = $author;
 
@@ -186,60 +139,60 @@ class Comment
     }
 
     /**
-     * Set parentComment
+     * Set thread
      *
-     * @param \AppBundle\Entity\comment $parentComment
+     * @param BaseThread $thread
      *
      * @return Comment
      */
-    public function setParentComment(\AppBundle\Entity\comment $parentComment = null)
+    public function setThread(ThreadInterface $thread = null)
     {
-        $this->parentComment = $parentComment;
+        $this->thread = $thread;
 
         return $this;
     }
 
     /**
-     * Get parentComment
+     * Get thread
      *
-     * @return \AppBundle\Entity\comment
+     * @return \AppBundle\Entity\Thread
      */
-    public function getParentComment()
+    public function getThread()
     {
-        return $this->parentComment;
+        return $this->thread;
     }
 
     /**
-     * Add reply
+     * Add file
      *
-     * @param \AppBundle\Entity\Comment $reply
+     * @param \AppBundle\Entity\File $file
      *
      * @return Comment
      */
-    public function addReply(\AppBundle\Entity\Comment $reply)
+    public function addFile(\AppBundle\Entity\File $file)
     {
-        $this->replies[] = $reply;
+        $this->files[] = $file;
 
         return $this;
     }
 
     /**
-     * Remove reply
+     * Remove file
      *
-     * @param \AppBundle\Entity\Comment $reply
+     * @param \AppBundle\Entity\File $file
      */
-    public function removeReply(\AppBundle\Entity\Comment $reply)
+    public function removeFile(\AppBundle\Entity\File $file)
     {
-        $this->replies->removeElement($reply);
+        $this->files->removeElement($file);
     }
 
     /**
-     * Get replies
+     * Get files
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getReplies()
+    public function getFiles()
     {
-        return $this->replies;
+        return $this->files;
     }
 }

@@ -24,17 +24,17 @@ class UserController extends Controller {
     }
 
 
-    public function onQueryList(QueryBuilder $builder){
+    public function onPreQueryList(QueryBuilder $builder){
         $builder->where('entity.removed != 1');
     }
-    public function onNewPersist(NamedEntityInterface $user)
+    public function onPreNewPersist(NamedEntityInterface $user)
     {
         $encoder = $this->get('security.password_encoder');
         $newPassword = $encoder->encodePassword($user,$user->getPassword());
         $user->setPassword($newPassword);
     }
 
-    public function onEditPersist(NamedEntityInterface $user)
+    public function onPreEditPersist(NamedEntityInterface $user)
     {
         $bcryptPasswordInfo = password_get_info($user->getPassword());
         if($bcryptPasswordInfo['algoName']!='bcrypt') {
@@ -44,7 +44,7 @@ class UserController extends Controller {
         }
     }
 
-    public function onRemove(NamedEntityInterface $user)
+    public function onPreRemove(NamedEntityInterface $user)
     {
         if ($this->getUser()->getId() == $user->getId()) {
             setcookie('PHPSESSID', false, 0, '/');

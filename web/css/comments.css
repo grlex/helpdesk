@@ -1,0 +1,232 @@
+/**
+ * This file is part of the FOSCommentBundle package.
+ *
+ * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+
+/* additional styles */
+.fos_comment_comment_authorname,
+.fos_comment_comment_date,
+.fos_comment_comment_badge{
+    display: inline-block;
+    padding-right: 1em;
+
+}
+.fos_comment_comment_authorname{
+    color: #03658c;
+    float: left;
+}
+.fos_comment_comment_authorname .by{
+    display: none;
+    color: #595959;
+}
+
+.fos_comment_comment_date{
+    float: left;
+    color: #999;
+    font-size: 0.9em;
+    padding-top: 0.15em;
+    position: relative;
+}
+
+.fos_comment_comment_reply_show_form,
+.fos_comment_comment_edit_show_form,
+.fos_comment_comment_remove
+{
+    color: #A6A6A6;
+    background: none;
+    border: none;
+    float: right;
+    transition: color .3s;
+}
+.fos_comment_comment_reply_show_form:hover,
+.fos_comment_comment_edit_show_form:hover,
+.fos_comment_comment_remove:hover
+{
+    color: #03658c;
+}
+.fos_comment_comment_show{
+    margin-top: 2em;
+}
+
+.fos_comment_comment_metas {
+    border-bottom: 1px solid #E5E5E5;
+    padding-bottom: .2em;
+    margin-bottom: .8em;
+}
+
+.fos_comment_without_children_wrapper{
+    color: #595959;
+    background: #fff;
+    border-radius: 4px;
+    padding: 1em;
+    position: relative;
+}
+.fos_comment_without_children_wrapper.reply::before,
+.fos_comment_without_children_wrapper.reply::after{
+
+    content: '';
+    height: 0;
+    width: 0;
+    position: absolute;
+    display: block;
+    border-width: 10px 12px 10px 0;
+    border-style: solid;
+    border-color: transparent #FCFCFC;
+    top: 8px;
+    left: -11px;
+}
+.fos_comment_without_children_wrapper.reply::after{
+
+    content: '';
+    height: 0;
+    width: 0;
+    position: absolute;
+    display: block;
+    border-width: 10px 12px 10px 0;
+    border-style: solid;
+    border-color: transparent #FCFCFC;
+    top: 8px;
+    left: -11px;
+}
+.fos_comment_comment_replies{
+    padding-left: 1em;
+}
+
+#fos_comment_thread .comment_count{
+    padding: 0 0 0.3em;
+    border-bottom: 2px solid #888b8d;
+    display: inline-block;
+}
+#fos_comment_thread .comments_container {
+    padding: 1em;
+    background: #dee1e3;
+    margin-top: 1em;
+}
+
+.fos_comment_comment_new_form textarea,
+.fos_comment_comment_edit_form textarea{
+    resize: vertical;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+}
+.fos_comment_comment_new_form .comment_editor,
+.fos_comment_comment_edit_form .comment_editor{
+    outline: none;
+}
+.fos_comment_comment_new_form .comment_editor .tools,
+.fos_comment_comment_edit_form .comment_editor .tools{
+    display: none;
+    background: #fff;
+    outline: none;
+    border: 1px solid #ccc ;
+    border-top: none;
+    padding: 0.5em;
+}
+
+.fos_comment_comment_form_holder{
+    padding: 1em 0;
+
+}
+
+/* existed styles */
+
+.fos_comment_thread_show {
+    margin-top: 2em;
+    padding: 1em 20px;
+    width: 472px;
+    background: #f0f0f0;
+    box-shadow: 0 0 7px #bbb;
+    -moz-box-shadow: 0 0 7px #bbb;
+    -webkit-box-shadow: 0 0 7px #bbb;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.fos_comment_thread_show h3 {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    color: #a0a0a0;
+}
+
+.fos_comment_comment_body {
+    line-height: 1.5em;
+}
+.fos_comment_comments .fos_comment_comments {
+    margin-left: 2em;
+}
+.fos_comment_comment_reply {
+    text-align: right;
+}
+.fos_comment_comment_reply.replying {
+    text-align: left;
+    margin-top: 1em;
+    padding: 1em 20px;
+    background: #d6d6d6;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.fos_comment_comment_reply.fos_comment_replying button.fos_comment_comment_reply_show_form {
+    display: none;
+}
+.fos_comment_thread_comments {
+    margin-bottom: 1.5em;
+}
+.fos_comment_reply_prototype {
+    display: none;
+}
+.fos_comment_thread_show > form.fos_comment_comment_form {
+    margin-bottom: 1em;
+}
+form.fos_comment_comment_form.processing {
+    opacity: 0.5;
+}
+form.fos_comment_comment_form label.author_name {
+    margin-top: 3px;
+    float:left;
+}
+form.fos_comment_comment_form label.author_name input {
+    padding: 2px 5px;
+}
+form.fos_comment_comment_form textarea {
+    width: 98%;
+    height: 6em;
+    padding: 1%;
+}
+form.fos_comment_comment_form.error textarea {
+    border-color: red;
+}
+.fos_comment_form_errors {
+    color: #ff0000;
+}
+.fos_comment_submit {
+    text-align: right;
+}
+.fos_comment_submit input {
+    font-size: 1.2em;
+    padding: 3px 12px;
+    margin-top: 3px;
+}
+a.fos_comment_thread_feed {
+    width: 16px;
+    height: 16px;
+    display: block;
+    float: right;
+}
+.fos_comment_comment_voting {
+    float: right;
+}
+.fos_comment_comment_score {
+    display: inline-block;
+}

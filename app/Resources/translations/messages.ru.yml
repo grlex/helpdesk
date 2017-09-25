@@ -43,3 +43,16 @@ ROLE_ADMIN: Администратор
 ROLE_MODERATOR: Модератор
 ROLE_EXECUTOR: Испольнитель
 ROLE_USER: Пользователь
+
+date-format.hours: час|часа|часов
+date-format.minutes: минуту|минуты|минут
+date-format.seconds: секуну|секунды|секунд
+date-format.just-now: только что
+date-format.ago: назад
+September: Сентябрь
+October: Октябрь
+November: Ноябрь
+December: Декабрь
+
+comment_placeholder: Оставьте свой комментарий
+

@@ -52,7 +52,7 @@ trait TraversableEntityTrait {
      */
     public function current()
     {
-        $field = $this->fields[$this->iterationPosition];
+        $field = static::$fields[$this->iterationPosition];
         return $this[$field];
     }
 
@@ -69,7 +69,7 @@ trait TraversableEntityTrait {
      */
     public function key()
     {
-        return $this->fields[$this->iterationPosition];
+        return static::$fields[$this->iterationPosition];
     }
 
     /**
@@ -77,7 +77,7 @@ trait TraversableEntityTrait {
      */
     public function valid()
     {
-        return $this->iterationPosition < count($this->fields);
+        return $this->iterationPosition < count(static::$fields);
     }
 
     /**
@@ -93,6 +93,6 @@ trait TraversableEntityTrait {
      */
     public function count()
     {
-        return count($this->fields);
+        return count(static::$fields);
     }
 } 

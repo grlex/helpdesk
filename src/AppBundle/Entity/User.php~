@@ -20,8 +20,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="user")
  * @UniqueEntity("login", message="user.already.exists")
  */
-class User {
-    protected $fields = ['id', 'name', 'login', 'password', 'role', 'department', 'position' ];
+class User extends BaseEntity implements UserInterface {
+    protected $fields = ['id', 'name', 'login', 'password', 'roles', 'department', 'position' ];
     public function __construct(){
         $this->roles = new ArrayCollection();
     }
@@ -48,14 +48,14 @@ class User {
     private $login;
     /**
      * @var string Пароль пользователя
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=60)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 60, maxMessage="model.common.strLength.{{limit}}" )
      */
     private $password;
     /**
      * @var string Название должности пользователя
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
      */
@@ -63,21 +63,24 @@ class User {
     /**
      * @var Department Отдель, в котором работает пользователь
      * @ORM\ManyToOne(targetEntity="Department")
-     * @ORM\JoinColumn(name="department_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="department_id", referencedColumnName="id", onDelete="SET NULL", nullable=true )
      */
     private $department;
 
     /**
      * @var Role[] Роль пользователя в компании
      * @ORM\ManyToMany(targetEntity="Role")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
+     * ORM\JoinTable("user_role",
+     *      joinColumns = {@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns = { @ORM\JoinColumn(name="role_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $roles;
 
 
     /**
      * @var bool Weather user is removed
-     * @ORM\Column(type="boolean" )
+     * @ORM\Column(type="boolean", options={ "default": 0 } )
      */
     private $removed=0;
 
@@ -114,17 +117,190 @@ class User {
         // TODO: Implement eraseCredentials() method.
     }
 
-
-    /*88888888888888888888888888888888888888888888888*/
-
     public function __toString(){
         return $this->getName();
     }
 
-    public function remove(){
-        $this->isRemoved = true;
+    /* ----------------------------------------- */
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
     }
-    public function isRemoved(){
-        return $this->isRemoved;
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return User
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set login
+     *
+     * @param string $login
+     *
+     * @return User
+     */
+    public function setLogin($login)
+    {
+        $this->login = $login;
+
+        return $this;
+    }
+
+    /**
+     * Get login
+     *
+     * @return string
+     */
+    public function getLogin()
+    {
+        return $this->login;
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     *
+     * @return User
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Set position
+     *
+     * @param string $position
+     *
+     * @return User
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    /**
+     * Get position
+     *
+     * @return string
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * Set removed
+     *
+     * @param boolean $removed
+     *
+     * @return User
+     */
+    public function setRemoved($removed)
+    {
+        $this->removed = $removed;
+
+        return $this;
+    }
+
+    /**
+     * Get removed
+     *
+     * @return boolean
+     */
+    public function isRemoved()
+    {
+        return $this->removed;
+    }
+
+    /**
+     * Set department
+     *
+     * @param \AppBundle\Entity\Department $department
+     *
+     * @return User
+     */
+    public function setDepartment(\AppBundle\Entity\Department $department = null)
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    /**
+     * Get department
+     *
+     * @return \AppBundle\Entity\Department
+     */
+    public function getDepartment()
+    {
+        return $this->department;
+    }
+
+    /**
+     * Add role
+     *
+     * @param \AppBundle\Entity\Role $role
+     *
+     * @return User
+     */
+    public function addRole(\AppBundle\Entity\Role $role)
+    {
+        $this->roles[] = $role;
+
+        return $this;
+    }
+
+    /**
+     * Remove role
+     *
+     * @param \AppBundle\Entity\Role $role
+     */
+    public function removeRole(\AppBundle\Entity\Role $role)
+    {
+        $this->roles->removeElement($role);
+    }
+
+    /**
+     * Get roles
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRoleCollection()
+    {
+        return $this->roles;
+    }
+    public function getRoles(){
+        return $this->roles->toArray();
     }
 }

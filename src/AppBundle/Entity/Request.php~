@@ -16,14 +16,17 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="request")
  */
-class Request {
-    protected $fields = ['id','name','description','comment','status', 'priority',
-                         'active', 'file','category','user','executor','lifecycle'];
+class Request //extends BaseEntity
+{
+    protected static $fields = ['id', 'name', 'description', 'status', 'priority',
+        'active', 'file', 'category', 'user', 'executor', 'lifecycleSteps', 'thread'];
     const STATUS_OPENED = 1;
     const STATUS_DISTRIBUTED = 2;
-    const STATUS_PROCESSED = 3;
-    const STATUS_CHECKING = 4;
-    const STATUS_CLOSED = 5;
+    const STATUS_REJECTED = 3;
+    const STATUS_PROCESSED = 4;
+    const STATUS_CHECKED_VALID = 5;
+    const STATUS_CHECKED_INVALID = 6;
+    const STATUS_CLOSED = 7;
     //
     const PRIORITY_LOW = 1;
     const PRIORITY_MEDIUM = 2;
@@ -35,79 +38,85 @@ class Request {
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    public $id;
+    protected $id;
     /**
      * @var string Название заявки
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
      */
-    private $name;
+    protected $name;
     /**
      * @var string Описание заявки
      * @ORM\Column(type="string", length=200, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
      */
-    private $description;
+    protected $description;
 
-    /**
-     * @var Comment[] Комментарий к заявке
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="request")
-     */
-    private $comments;
     /**
      * @var int Статус
      * @ORM\Column(type="integer", options={ "default": 1} )
      */
-    private $status;
+    protected $status;
     /**
      * @var int Приоритет
      * @ORM\Column(type="integer", options={ "default": 2} )
      */
-    private $priority;
+    protected $priority;
     /**
      * @var Active Кабинет в отделе
      * @ORM\ManyToOne(targetEntity="Active")
      * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $active;
+    protected $active;
     /**
-     * @var string Файл с подробностями проблемы
-     * @ORM\Column(type="string", length=200, nullable=true)
+     * @var File[] Файлы, прикрепленные к заявке
+     * @ORM\ManyToMany(targetEntity="File")
+     * @ORM\JoinTable(name="request_file",
+     *      joinColumns = { @ORM\JoinColumn(name="request_id", referencedColumnName="id") },
+     *      inverseJoinColumns = { @ORM\JoinColumn(name="file_id", referencedColumnName="id") } )
      */
-    private $file;
+    protected $files;
     /**
      * @var Category Категрия проблемы
      * @ORM\ManyToOne(targetEntity="Category")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $category;
+    protected $category;
     /**
      * @var User Автор заявки о проблеме
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $user;
+    protected $user;
     /**
      * @var User Кто будет решать проблему
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $executor;
+    protected $executor;
 
     /**
-     * @var Lifecycle Временные отметки изменения статуса текущей заявки
-     * @ORM\OneToOne(targetEntity="Lifecycle")
-     * @ORM\JoinColumn(name="lifecycle_id", referencedColumnName="id", onDelete="CASCADE")
+     * @var LifecycleStep[] Временные отметки изменения статуса текущей заявки
+     * @ORM\OneToMany(targetEntity="LifecycleStep", mappedBy="request")
      */
-    private $lifecycle;
+    protected $lifecycleSteps;
+
+    /**
+     * @var Thread
+     * @ORM\OneToOne(targetEntity="Thread")
+     */
+    protected $thread;
 
 
-
-    public function __toString(){
+    public function __toString()
+    {
         return $this->getName();
     }
 
+
     /* ====================================== ============= */
+
+
 }

@@ -1,0 +1,61 @@
+{% extends '_themes/bootstrap_3_horizontal_layout_m.html.twig' %}
+
+
+
+
+
+{%- block collection_widget -%}
+
+    {% set prototype_html =
+    '<li class="file-item btn btn-default" data-index="__name__">
+                        <span class="status-icon error fa fa-warning"></span>
+                        <span class="status-icon success fa fa-check"></span>
+                        <span class="status-icon wait fa fa-spinner"></span>
+                        <span class="file-name"></span>
+                        <span class="file-remove fa fa-close"></span>
+                        <input class="file-id" type="hidden" name="__id_name__"/>
+                        <input class="file-name" type="hidden" name="__name_name__"/>
+                    </li>'| replace({'__id_name__': full_name ~ '[__name__][id]',
+                                     '__name_name__': full_name ~ '[__name__][name]'})|raw
+    %}
+    {%- set attr = attr|merge({'data-prototype': prototype_html }) -%}
+
+    {# form_widget_compound #}
+    <div {{ block('widget_container_attributes') }}>
+        {%- if form.parent is empty -%}
+            {{ form_errors(form) }}
+        {%- endif -%}
+        {{- block('files') }}
+
+    </div>
+{%- endblock collection_widget -%}
+
+
+{%- block files -%}
+
+
+
+    <ul class="file-collection list-unstyled list-inline">
+                {% for file in form %}
+                    <li class="file-item btn btn-default success" data-index="{{ loop.index0 }}">
+                        <span class="status-icon error fa fa-warning"></span>
+                        <span class="status-icon success fa fa-check"></span>
+                        <span class="status-icon wait fa fa-spinner"></span>
+                        <span class="file-name">{{ file.name.vars.value }}</span>
+                        <span class="file-remove fa fa-close"></span>
+                        <input class="file-id" type="hidden" name="{{ file.id.vars.full_name }}" value="{{ file.id.vars.value }}"/>
+                        <input class="file-name" type="hidden" name="{{ file.name.vars.full_name }}" value="{{ file.name.vars.value }}"/>
+                        <input class="file-input" type="file"  />
+                    </li>
+                {% endfor %}
+
+        <li class="file-item btn btn-default new-file" data-index="-1">
+            <i class="file-icon"></i>
+            <span class="file-name">{{ 'form.request.files.add'|trans({},'forms') }}</span>
+            <input type="file" name="{{ full_name }}[{{ form|length }}][file]"/>
+        </li>
+    </ul>
+
+
+{%- endblock files -%}
+

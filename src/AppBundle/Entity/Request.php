@@ -7,6 +7,9 @@
  */
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,15 +18,19 @@ use Doctrine\ORM\Mapping as ORM;
  * @package AppBundle\Model
  * @ORM\Entity
  * @ORM\Table(name="request")
+ * @ORM\HasLifecycleCallbacks
  */
-class Request extends BaseEntity{
-    protected $fields = ['id','name','description','comment','status', 'priority',
-                         'active', 'file','category','user','executor','lifecycle'];
+class Request extends BaseEntity
+{
+    protected static $fields = ['id', 'name', 'description', 'status', 'priority',
+        'active', 'files', 'category', 'user', 'executor', 'lifecycleSteps', 'thread'];
     const STATUS_OPENED = 1;
     const STATUS_DISTRIBUTED = 2;
-    const STATUS_PROCESSED = 3;
-    const STATUS_CHECKING = 4;
-    const STATUS_CLOSED = 5;
+    const STATUS_REJECTED = 3;
+    const STATUS_PROCESSED = 4;
+    const STATUS_CHECKED_VALID = 5;
+    const STATUS_CHECKED_INVALID = 6;
+    const STATUS_CLOSED = 7;
     //
     const PRIORITY_LOW = 1;
     const PRIORITY_MEDIUM = 2;
@@ -35,87 +42,96 @@ class Request extends BaseEntity{
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    public $id;
+    protected $id;
     /**
      * @var string Название заявки
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 50, maxMessage="model.common.strLength.{{limit}}" )
      */
-    private $name;
+    protected $name;
     /**
      * @var string Описание заявки
      * @ORM\Column(type="string", length=200, nullable=true)
      * @Assert\NotBlank(message="entity.common.notBlank")
      * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
      */
-    private $description;
+    protected $description;
 
-    /**
-     * @var Comment[] Комментарий к заявке
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="request")
-     */
-    private $comments;
     /**
      * @var int Статус
      * @ORM\Column(type="integer", options={ "default": 1} )
      */
-    private $status;
+    protected $status;
     /**
      * @var int Приоритет
      * @ORM\Column(type="integer", options={ "default": 2} )
      */
-    private $priority;
+    protected $priority;
     /**
      * @var Active Кабинет в отделе
      * @ORM\ManyToOne(targetEntity="Active")
      * @ORM\JoinColumn(name="active_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $active;
+    protected $active;
     /**
-     * @var string Файл с подробностями проблемы
-     * @ORM\Column(type="string", length=200, nullable=true)
+     * @var File[] Файлы, прикрепленные к заявке
+     * @ORM\ManyToMany(targetEntity="File", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\JoinTable(name="request_file",
+     *      joinColumns = { @ORM\JoinColumn(name="request_id", referencedColumnName="id", onDelete="CASCADE") },
+     *      inverseJoinColumns = { @ORM\JoinColumn(name="file_id", referencedColumnName="id", onDelete="CASCADE") } )
      */
-    private $file;
+    protected $files;
     /**
      * @var Category Категрия проблемы
      * @ORM\ManyToOne(targetEntity="Category")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $category;
+    protected $category;
     /**
      * @var User Автор заявки о проблеме
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $user;
+    protected $user;
     /**
      * @var User Кто будет решать проблему
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="executor_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
-    private $executor;
+    protected $executor;
 
     /**
-     * @var Lifecycle Временные отметки изменения статуса текущей заявки
-     * @ORM\OneToOne(targetEntity="Lifecycle")
-     * @ORM\JoinColumn(name="lifecycle_id", referencedColumnName="id", onDelete="CASCADE")
+     * @var LifecycleStep[] Временные отметки изменения статуса текущей заявки
+     * @ORM\OneToMany(targetEntity="LifecycleStep", mappedBy="request")
      */
-    private $lifecycle;
+    protected $lifecycleSteps;
+
+    /**
+     * @var Thread
+     * @ORM\OneToOne(targetEntity="Thread")
+     */
+    protected $thread;
 
 
-
-    public function __toString(){
+    public function __toString()
+    {
         return $this->getName();
     }
 
+
+
+
     /* ====================================== ============= */
+
+
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->files = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->lifecycleSteps = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -225,64 +241,6 @@ class Request extends BaseEntity{
     }
 
     /**
-     * Set file
-     *
-     * @param string $file
-     *
-     * @return Request
-     */
-    public function setFile($file)
-    {
-        $this->file = $file;
-
-        return $this;
-    }
-
-    /**
-     * Get file
-     *
-     * @return string
-     */
-    public function getFile()
-    {
-        return $this->file;
-    }
-
-    /**
-     * Add comment
-     *
-     * @param \AppBundle\Entity\Comment $comment
-     *
-     * @return Request
-     */
-    public function addComment(\AppBundle\Entity\Comment $comment)
-    {
-        $this->comments[] = $comment;
-
-        return $this;
-    }
-
-    /**
-     * Remove comment
-     *
-     * @param \AppBundle\Entity\Comment $comment
-     */
-    public function removeComment(\AppBundle\Entity\Comment $comment)
-    {
-        $this->comments->removeElement($comment);
-    }
-
-    /**
-     * Get comments
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getComments()
-    {
-        return $this->comments;
-    }
-
-    /**
      * Set active
      *
      * @param \AppBundle\Entity\Active $active
@@ -304,6 +262,40 @@ class Request extends BaseEntity{
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Add file
+     *
+     * @param \AppBundle\Entity\File $file
+     *
+     * @return Request
+     */
+    public function addFile(\AppBundle\Entity\File $file)
+    {
+        $this->files[] = $file;
+
+        return $this;
+    }
+
+    /**
+     * Remove file
+     *
+     * @param \AppBundle\Entity\File $file
+     */
+    public function removeFile(\AppBundle\Entity\File $file)
+    {
+        $this->files->removeElement($file);
+    }
+
+    /**
+     * Get files
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 
     /**
@@ -379,26 +371,60 @@ class Request extends BaseEntity{
     }
 
     /**
-     * Set lifecycle
+     * Add lifecycleStep
      *
-     * @param \AppBundle\Entity\Lifecycle $lifecycle
+     * @param \AppBundle\Entity\LifecycleStep $lifecycleStep
      *
      * @return Request
      */
-    public function setLifecycle(\AppBundle\Entity\Lifecycle $lifecycle = null)
+    public function addLifecycleStep(\AppBundle\Entity\LifecycleStep $lifecycleStep)
     {
-        $this->lifecycle = $lifecycle;
+        $this->lifecycleSteps[] = $lifecycleStep;
 
         return $this;
     }
 
     /**
-     * Get lifecycle
+     * Remove lifecycleStep
      *
-     * @return \AppBundle\Entity\Lifecycle
+     * @param \AppBundle\Entity\LifecycleStep $lifecycleStep
      */
-    public function getLifecycle()
+    public function removeLifecycleStep(\AppBundle\Entity\LifecycleStep $lifecycleStep)
     {
-        return $this->lifecycle;
+        $this->lifecycleSteps->removeElement($lifecycleStep);
+    }
+
+    /**
+     * Get lifecycleSteps
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLifecycleSteps()
+    {
+        return $this->lifecycleSteps;
+    }
+
+    /**
+     * Set thread
+     *
+     * @param \AppBundle\Entity\Thread $thread
+     *
+     * @return Request
+     */
+    public function setThread(\AppBundle\Entity\Thread $thread = null)
+    {
+        $this->thread = $thread;
+
+        return $this;
+    }
+
+    /**
+     * Get thread
+     *
+     * @return \AppBundle\Entity\Thread
+     */
+    public function getThread()
+    {
+        return $this->thread;
     }
 }

@@ -13,11 +13,10 @@
 {% endif %}
 {% block content %}
     {% from 'table-panel-macro.html.twig' import table_panel %}
-    {% set headers=['id','name','login','password','roles','department','position'] %}
+    {% set fields=['id','name','login','password','roles','department','position'] %}
     {{ table_panel({
-        'headers': headers,
+        'fields': fields,
         'items': entities,
-        'visibleColumnNumbers': visibleColumnNumbers,
         'newBaseUri': '/user/new',
         'editBaseUri': '/user/edit',
         'removeBaseUri': '/user/remove',

@@ -9,19 +9,21 @@
     {{ form_errors(form) }}
 
     {{ form_row(form.name) }}
-    {{ form_row(form.description) }}
-    {{ form_row(form.comment) }}
+    {{ form_row(form.description, {attr:{class:'wysiwyg-element'}}) }}
     {{ form_row(form.status) }}
     {{ form_row(form.priority) }}
     {{ form_row(form.active) }}
-    {{ form_row(form.file) }}
+
+    {% form_theme form.files '_themes/file_collection_theme.html.twig' %}
+    {{ form_row(form.files) }}
+
+
     {{ form_row(form.category) }}
     {{ form_row(form.user) }}
     {{ form_row(form.executor) }}
-    {{ form_row(form.lifecycle) }}
 
     <div class="form-group" style="text-align:center">
-        {{ form_widget(form.cancel , {attr: { class: 'cancel btn btn-default'} }) }}
+        {{ form_widget(form.cancel , {attr: { class: 'cancel btn btn-default', onclick: 'window.location.href="/request/cancel"'} }) }}
         {{ form_widget(form.save, {attr: { class: 'save btn btn-default'} }) }}
     </div>
     {{ form_row(form._token) }}

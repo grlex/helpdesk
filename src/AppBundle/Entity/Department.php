@@ -19,7 +19,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity("name", message="department.already.exists")
  */
 class Department extends BaseEntity {
-    protected $fields = ['id', 'name'];
+    protected static $fields = ['id', 'name'];
     /**
      * @var int
      * @ORM\Id

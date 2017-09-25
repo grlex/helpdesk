@@ -36,8 +36,17 @@ form:
         priority.high: Важный
         priority.medium: Обычный
         priority.low: Низкий
+        status: Статус
+        status.opened: Открыта
+        status.rejected: Отклонена
+        status.distributed: Назначена
+        status.processed: Обработана
+        status.checked_valid: Подтверждена
+        status.checked_invalid: Обработана с ошибкой
+        status.closed: Закрыта
         active: Кабинет и отдел
-        file: Выберите файл
+        files: Прикрепленные файлы
+        files.add: Добавить
         category: Категория проблемы в заявке
         user: Инициатор заявки
         executor: Исполнитель заявки

@@ -49,7 +49,7 @@ trait EntityControllerTrait {
         $pageSize = $pageSize>0 ? $pageSize : 10;
 
         $queryBuilder = $this->get('doctrine')->getRepository($this->entityClass)->createQueryBuilder('entity');
-        $this->onQueryList($queryBuilder);
+        $this->onPreQueryList($queryBuilder);
 
         $entitiesCount = $queryBuilder->select('count(entity)')->getQuery()->getSingleScalarResult();
         $totalPages = ceil($entitiesCount/$pageSize);
@@ -59,6 +59,8 @@ trait EntityControllerTrait {
             ->setFirstResult(($page-1)*$pageSize)
             ->setMaxResults($pageSize)
             ->getResult();
+
+        $entities = $this->onPostQueryList($entities) ?: $entities;
         return $this->render(sprintf('/%s/list.html.twig',$this->viewBaseDir),array(
             'entities'=>$entities,
             'currentPage'=>$page,
@@ -70,18 +72,27 @@ trait EntityControllerTrait {
      * @param Request $request
      */
     public function newAction(Request $request){
-        $form = $this->createForm($this->newFormClass);
+
+
+        $options = array();
+        if($this->editFormClass == $this->newFormClass) $options['formUsage']='new';
+        $form = $this->createForm($this->newFormClass, null, $options);
+
         $form->handleRequest($request);
         $isValid = $this->onNewValidate($form)!==false;
         if($form->isSubmitted() && $form->isValid()  && $isValid){
             $entity = $form->getData();
-            if($this->onNewPersist($entity)!==false) {
+            if($this->OnPreNewPersist($entity)!==false) {
                 $em = $this->get('doctrine')->getManager();
                 $em->persist($entity);
                 $em->flush();
+                $this->onPostNewPersist($entity);
             }
             return $this->redirect(sprintf('/%s/list',$this->viewBaseDir));
         }
+
+
+
         return $this->render(sprintf('/%s/new.html.twig',$this->viewBaseDir), array('form'=>$form->createView()));
     }
 
@@ -96,14 +107,21 @@ trait EntityControllerTrait {
         if(!$entity) {
             throw $this->createNotFoundException();
         }
-        $form = $this->createForm($this->editFormClass, $entity, array('formUsage'=>'edit'));
+
+        $options = array();
+        if($this->editFormClass == $this->newFormClass) $options['formUsage']='edit';
+        $form = $this->createForm($this->editFormClass, $entity, $options);
+
+
         $form->handleRequest($request);
+
+
         $isValid = $this->onEditValidate($form)!==false;
         if($form->isSubmitted() && $form->isValid() && $isValid){
-            if($this->onEditPersist($entity)!==false) {
+            if($this->onPreEditPersist($entity)!==false) {
                 $em = $this->get('doctrine')->getManager();
-                //$em->persist($entity);
                 $em->flush();
+                $this->onPostEditPersist($entity);
             }
             return $this->redirect(sprintf('/%s/list',$this->viewBaseDir));
         }
@@ -127,10 +145,11 @@ trait EntityControllerTrait {
         $isValid = $this->onRemoveValidate($form)!==false;
         if($form->isSubmitted() && $isValid) {
 
-            if(($redirect = $this->onRemove($entity))!==false) {
+            if(($redirect = $this->onPreRemove($entity))!==false) {
                 $em = $this->get('doctrine')->getManager();
                 $em->remove($entity);
                 $em->flush();
+                $this->onPostRemove($entity);
             }
             return $this->redirect($redirect ?: sprintf('/%s/list',$this->viewBaseDir));
         }
@@ -141,28 +160,51 @@ trait EntityControllerTrait {
 
     }
 
-    /**
-     * @param QueryBuilder $builder Use it to modify query of select statement
-     */
-    protected function onQueryList(QueryBuilder $builder){
 
+    /**
+     * @param QueryBuilder $builder use builder to change query statement
+     */
+    protected function onPreQueryList(QueryBuilder $builder){
+
+    }
+    /**
+     * @param $result NamedEntityInterface[] Queried entities
+     * @return array[] Array of entities those should be used as querying result
+     */
+    protected function onPostQueryList($result){
+        return false;
     }
     /**
      * @param NamedEntityInterface $entity Entity to be persisted
      * @return bool return false to cancel persisting
      */
-    protected function onNewPersist(NamedEntityInterface $entity){}
+    protected function onPreNewPersist(NamedEntityInterface $entity){}
+    /**
+     * @param NamedEntityInterface $entity Entity to be persisted
+     */
+    protected function onPostNewPersist(NamedEntityInterface $entity){}
     /**
      * @param NamedEntityInterface $entity Entity to be persisted
      * @return bool return false to cancel persisting
      */
-    protected function onEditPersist(NamedEntityInterface $entity){}
+    protected function onPreEditPersist(NamedEntityInterface $entity){}
+    /**
+     * @param NamedEntityInterface $entity Entity to be persisted
+     */
+    protected function onPostEditPersist(NamedEntityInterface $entity){}
 
     /**
      * @param NamedEntityInterface $entity Entity to be removed
-     * @return bool|string return false to cancel removing or string with uri to redirect after removing
+     * @return bool return false to cancel removing
      */
-    protected function onRemove(NamedEntityInterface $entity){}
+    protected function onPreRemove(NamedEntityInterface $entity){}
+
+    /**
+     * @param NamedEntityInterface $entity
+     * @return string  uri to redirect after removing
+     *
+     */
+    protected function onPostRemove(NamedEntityInterface $entity){}
 
     /**
      * @param  FormInterface $form Validated form

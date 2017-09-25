@@ -9,9 +9,9 @@
 
 {% block content %}
     {% from 'table-panel-macro.html.twig' import table_panel %}
-    {% set headers=['id','name'] %}
+    {% set fields=['id','name'] %}
     {{ table_panel({
-        'headers': headers,
+        'fields': fields,
         'items': entities,
         'newBaseUri': '/category/new',
         'editBaseUri': '/category/edit',

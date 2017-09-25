@@ -33,3 +33,30 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+
+
+
+    markup.exercise_html_purifier:
+        class: FOS\CommentBundle\Markup\HtmlPurifier
+        arguments: [ '@exercise_html_purifier.default' ]
+
+
+    app.file_storage:
+        class: AppBundle\Service\FileStorage
+        arguments: ['%file_storage_path%']
+        tags:
+            - { name: doctrine.event_listener, event: preRemove }
+    AppBundle\Service\FileStorage: '@app.file_storage'
+
+    AppBundle\Form\Transformer\FileTransformer:
+        arguments:
+            - '@doctrine'
+    AppBundle\Form\FileType:
+        arguments:
+            - '@AppBundle\Form\Transformer\FileTransformer'
+        tags:
+            - { name: 'form.type' }
+    session.handler:
+        class: AppBundle\Service\SessionHandler
+        arguments: [ '%file_storage_path%', '@doctrine' ]
+

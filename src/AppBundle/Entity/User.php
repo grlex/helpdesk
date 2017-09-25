@@ -21,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity("login", message="user.already.exists")
  */
 class User extends BaseEntity implements UserInterface {
-    protected $fields = ['id', 'name', 'login', 'password', 'roles', 'department', 'position' ];
+    protected static $fields = ['id', 'name', 'login', 'password', 'roles', 'department', 'position' ];
     public function __construct(){
         $this->roles = new ArrayCollection();
     }
@@ -302,5 +302,15 @@ class User extends BaseEntity implements UserInterface {
     }
     public function getRoles(){
         return $this->roles->toArray();
+    }
+
+    /**
+     * Get removed
+     *
+     * @return boolean
+     */
+    public function getRemoved()
+    {
+        return $this->removed;
     }
 }

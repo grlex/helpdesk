@@ -19,7 +19,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity("name", message="category.already.exists")
  */
 class Category extends BaseEntity implements NamedEntityInterface {
-    protected $fields = ['id', 'name'];
+    protected static $fields = ['id', 'name'];
     /**
      * @var int
      * @ORM\Id

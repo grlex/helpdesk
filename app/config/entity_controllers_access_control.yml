@@ -4,5 +4,7 @@ security:
         ROLE_MODERATOR: ['ROLE_USER']
         ROLE_EXECUTOR: ['ROLE_USER']
     access_control:
-        - { path: "^/user/list", roles: ["ROLE_USER"] }
+        - { path: "^/$", roles: ["IS_AUTHENTICATED_ANONYMOUSLY"]}
         - { path: "^/user/", roles: ["ROLE_ADMIN"] }
+        - { path: "^/account/login", roles: ["IS_AUTHENTICATED_ANONYMOUSLY"] }
+        - { path: "^/", roles: ["ROLE_USER"] }
