@@ -40,9 +40,16 @@ class LifecycleStep {
     protected $datetime;
 
     /**
+     * @var User $user
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
+    protected $user;
+
+    /**
      * @var Comment
      * @ORM\OneToOne(targetEntity="Comment")
-     * @ORM\JoinColumn(onDelete="RESTRICT")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      */
     protected $comment;
 
@@ -165,5 +172,29 @@ class LifecycleStep {
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \AppBundle\Entity\User $user
+     *
+     * @return User
+     */
+    public function setUser(\AppBundle\Entity\User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \AppBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

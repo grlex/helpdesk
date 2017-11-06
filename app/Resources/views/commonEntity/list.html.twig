@@ -1,0 +1,47 @@
+{% extends app.request.query.has('table-only') ? 'empty_template.html.twig' : 'main_template.html.twig' %}
+
+
+{% block content %}
+
+
+
+    {% from 'table-panel-macro.html.twig' import table_panel %}
+
+    {% set tablePanelConfig = tablePanelConfig is defined ? tablePanelConfig : {} %}
+
+    {% set fields =  tablePanelConfig.fields is defined ? tablePanelConfig.fields : fields %}
+
+    {% set headers = [] %}
+    {% for field in fields %}
+        {% set header = field=='id' ? 'id' : (entityName~'.'~field)|trans({},'entities') %}
+        {% set headers = headers|merge([header|trans]) %}
+    {% endfor %}
+
+    {{ table_panel({
+            'fields': fields,
+            'headers': headers,
+            items: entities,
+            pagination: {
+                'currentPage': currentPage,
+                'totalPages': totalPages,
+                'queryParams': app.request.query.has('table-only') ? {'table-only': false} : {}
+            },
+            panelTitle: title|default(('items.'~entityName~'.title')|trans),
+            'filterForm': filterForm,
+
+            'canActCallback': canActCallback,
+            actions: {
+                new: {
+                    uri: '/'~entityName~'/new',
+                    class: 'btn btn-primary'
+                },
+                edit: {
+                    baseUri: '/'~entityName~'/edit',
+                },
+                remove: {
+                    baseUri: '/'~entityName~'/remove',
+                }
+            }
+        }|merge_recursive(tablePanelConfig))
+    }}
+{% endblock %}

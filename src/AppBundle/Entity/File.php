@@ -28,30 +28,33 @@ class File {
     protected $id;
     /**
      * @var string
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=100)
      */
     protected $originalName;
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=10)
-     */
-    protected $extension;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    protected $size;
     /**
      * @var bool
      * @ORM\Column(type="boolean", options={ "default":0}, nullable=true)
      */
     protected $confirmed;
 
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=50, unique=true)
+     */
+    protected $filename;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
 
 
-
-    public function getName(){
-        return  sprintf('%s.%s', $this->id, $this->extension);
+    public function __toString(){
+        return $this->originalName;
+    }
+    public function getToStringFields(){
+        return ['originalName'];
     }
 
 
@@ -92,53 +95,6 @@ class File {
         return $this->originalName;
     }
 
-    /**
-     * Set extension
-     *
-     * @param string $extension
-     *
-     * @return File
-     */
-    public function setExtension($extension)
-    {
-        $this->extension = $extension;
-
-        return $this;
-    }
-
-    /**
-     * Get extension
-     *
-     * @return string
-     */
-    public function getExtension()
-    {
-        return $this->extension;
-    }
-
-    /**
-     * Set size
-     *
-     * @param integer $size
-     *
-     * @return File
-     */
-    public function setSize($size)
-    {
-        $this->size = $size;
-
-        return $this;
-    }
-
-    /**
-     * Get size
-     *
-     * @return integer
-     */
-    public function getSize()
-    {
-        return $this->size;
-    }
 
     /**
      * Set confirmed
@@ -163,4 +119,53 @@ class File {
     {
         return $this->confirmed;
     }
+
+    /**
+     * Set filename
+     *
+     * @param string $filename
+     *
+     * @return File
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    /**
+     * Get filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     *
+     * @return File
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
 }

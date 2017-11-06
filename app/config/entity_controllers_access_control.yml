@@ -1,10 +1,9 @@
 security:
     role_hierarchy:
-        ROLE_ADMIN: ['ROLE_MODERATOR', 'ROLE_EXECUTOR', 'ROLE_USER']
+        ROLE_ADMIN: ['ROLE_USER']
         ROLE_MODERATOR: ['ROLE_USER']
         ROLE_EXECUTOR: ['ROLE_USER']
     access_control:
         - { path: "^/$", roles: ["IS_AUTHENTICATED_ANONYMOUSLY"]}
-        - { path: "^/user/", roles: ["ROLE_ADMIN"] }
         - { path: "^/account/login", roles: ["IS_AUTHENTICATED_ANONYMOUSLY"] }
         - { path: "^/", roles: ["ROLE_USER"] }

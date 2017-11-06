@@ -19,7 +19,8 @@
     {% set count = thread.numComments %}
     <h3>
         <span class="comment_count">
-        {% transchoice count with {'%count%': count} from "FOSCommentBundle" %}fos_comment_thread_comment_count{% endtranschoice %}
+            <span class="count">{{ count }}</span>
+            {% transchoice count  from "FOSCommentBundle" %}fos_comment_thread_comment_count{% endtranschoice %}
         </span>
     </h3>
 
@@ -44,9 +45,9 @@
     </div>
 
 {% else %}
-    {% for commentinfo in comments %}
-        {% include "FOSCommentBundle:Thread:comment.html.twig" with { "children": commentinfo.children, "comment": commentinfo.comment, "depth": depth, "view": view } %}
-    {% endfor %}
+        {% for commentinfo in comments %}
+            {% include "FOSCommentBundle:Thread:comment.html.twig" with { "children": commentinfo.children, "comment": commentinfo.comment, "depth": depth, "view": view } %}
+        {% endfor %}
 {% endif %}
 
 

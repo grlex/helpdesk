@@ -1,4 +1,26 @@
 #
+# RequestController
+#
+requests.list:
+  path: '/request/list'
+  defaults:
+      _controller: AppBundle:Request:list
+requests.new:
+  path: '/request/new'
+  defaults:
+      _controller: AppBundle:Request:new
+requests.edit:
+  path: '/request/edit/{id}'
+  defaults:
+      _controller: AppBundle:Request:edit
+requests.remove:
+  path: '/request/remove/{id}'
+  defaults:
+      _controller: AppBundle:Request:remove
+
+
+
+#
 # UserController
 #
 user.list:
@@ -18,85 +40,34 @@ user.remove:
   defaults:
       _controller: AppBundle:User:remove
 
-#
-# DepartmentController
-#
-department.list:
-  path: '/department/list'
-  defaults:
-      _controller: AppBundle:Department:list
-department.new:
-  path: '/department/new'
-  defaults:
-      _controller: AppBundle:Department:new
-department.edit:
-  path: '/department/edit/{id}'
-  defaults:
-      _controller: AppBundle:Department:edit
-department.remove:
-  path: '/department/remove/{id}'
-  defaults:
-      _controller: AppBundle:Department:remove
 
 
 #
-# CategoryController
+# CommonEntityController
 #
-category.list:
-  path: '/category/list'
+common.list:
+  path: '/{entity}/list'
   defaults:
-      _controller: AppBundle:Category:list
-category.new:
-  path: '/category/new'
-  defaults:
-      _controller: AppBundle:Category:new
-category.edit:
-  path: '/category/edit/{id}'
-  defaults:
-      _controller: AppBundle:Category:edit
-category.remove:
-  path: '/category/remove/{id}'
-  defaults:
-      _controller: AppBundle:Category:remove
+      _controller: AppBundle:CommonEntity:list
+      table_only: ''
+  requirements:
+      entity: 'category|department|active'
 
-
-#
-# ActiveController
-#
-active.list:
-  path: '/active/list'
+common.new:
+  path: '/{entity}/new'
   defaults:
-      _controller: AppBundle:Active:list
-active.new:
-  path: '/active/new'
+      _controller: AppBundle:CommonEntity:new
+  requirements:
+      entity: 'category|department|active'
+common.edit:
+  path: '/{entity}/edit/{id}'
   defaults:
-      _controller: AppBundle:Active:new
-active.edit:
-  path: '/active/edit/{id}'
+      _controller: AppBundle:CommonEntity:edit
+  requirements:
+      entity: 'category|department|active'
+common.remove:
+  path: '/{entity}/remove/{id}'
   defaults:
-      _controller: AppBundle:Active:edit
-active.remove:
-  path: '/active/remove/{id}'
-  defaults:
-      _controller: AppBundle:Active:remove
-
-
-#
-# RequestController
-#
-request.list:
-  path: '/request/list'
-  defaults:
-      _controller: AppBundle:Request:list
-request.new:
-  path: '/request/new'
-  defaults:
-      _controller: AppBundle:Request:new
-request.edit:
-  path: '/request/edit/{id}'
-  defaults:
-      _controller: AppBundle:Request:edit
-request.remove:
-  path: '/request/remove/{id}'
-  defaults:
-      _controller: AppBundle:Request:remove
+      _controller: AppBundle:CommonEntity:remove
+  requirements:
+      entity: 'category|department|active'

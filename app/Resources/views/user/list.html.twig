@@ -1,31 +1,11 @@
-{% extends 'main_template.html.twig' %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
 
-    </style>
-{% endblock %}
-{% if is_granted('ROLE_ADMIN') %}
-    {% set visibleColumnNumbers=false %}
-{% else %}
-    {% set visibleColumnNumbers=[2,3,5,6,7] %}
-{% endif %}
-{% block content %}
-    {% from 'table-panel-macro.html.twig' import table_panel %}
-    {% set fields=['id','name','login','password','roles','department','position'] %}
-    {{ table_panel({
-        'fields': fields,
-        'items': entities,
-        'newBaseUri': '/user/new',
-        'editBaseUri': '/user/edit',
-        'removeBaseUri': '/user/remove',
-        'currentPage': currentPage,
-        'totalPages': totalPages,
-        'fieldsTrimming': {'password':12},
-        'panelTitle': 'misc.users',
-        'removeConfirmationMessage': 'items.remove-user.confirmation.%item%.%id%',
-        'removeForm': removeForm
-        })
-    }}
-{% endblock %}
+{% set tablePanelConfig = {
+    fields: ['id','name','login', 'password', 'roles', 'position'],
+    fieldsTrimming: {
+        password: 12
+    },
+} %}
+
+{% include '/commonEntity/list.html.twig' %}
+

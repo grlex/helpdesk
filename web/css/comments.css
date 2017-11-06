@@ -32,23 +32,49 @@
     padding-top: 0.15em;
     position: relative;
 }
+.fos_comment_comment_badge .badge.author{
+    background: #9c393e;
+}
+.fos_comment_comment_badge .badge.admin{
+    background: #7b509f;
+}
+.fos_comment_comment_badge .badge.moderator{
+    background: #a88254;
+}
+.fos_comment_comment_badge .badge.executor{
+    background: #4d8aaf;
+}
 
 .fos_comment_comment_reply_show_form,
 .fos_comment_comment_edit_show_form,
 .fos_comment_comment_remove
 {
+    display: inline-block;
+    padding: 0.5em;
+    cursor: pointer;
     color: #A6A6A6;
     background: none;
     border: none;
     float: right;
     transition: color .3s;
 }
+
+
 .fos_comment_comment_reply_show_form:hover,
 .fos_comment_comment_edit_show_form:hover,
 .fos_comment_comment_remove:hover
 {
     color: #03658c;
 }
+
+.fos_comment_comment_metas.replying .fos_comment_comment_reply_show_form,
+.fos_comment_comment_metas.editing .fos_comment_comment_edit_show_form,
+.fos_comment_comment_metas.removing .fos_comment_comment_remove
+{
+    color: #b3302e;
+}
+
+
 .fos_comment_comment_show{
     margin-top: 2em;
 }
@@ -93,6 +119,11 @@
     top: 8px;
     left: -11px;
 }
+
+.fos_comment_without_children_wrapper > .fos_comment_comment_form_holder{
+    margin-top: 3em;
+}
+
 .fos_comment_comment_replies{
     padding-left: 1em;
 }
@@ -160,6 +191,11 @@
 
 .fos_comment_comment_body {
     line-height: 1.5em;
+    position: relative;
+}
+.fos_comment_comment_body > img,
+.fos_comment_comment_body > :not(.fos_comment_comment_form_holder) img{
+    max-width: 100%;
 }
 .fos_comment_comments .fos_comment_comments {
     margin-left: 2em;

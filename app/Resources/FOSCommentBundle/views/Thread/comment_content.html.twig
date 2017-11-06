@@ -12,6 +12,7 @@
 {% block fos_comment_comment %}
 <div id="fos_comment_{{ comment.id }}" class="fos_comment_comment_show fos_comment_comment_depth_{{ depth }}" {% if parent is defined and parent is not null %}data-parent="{{ parent.id }}"{% endif %}>
 
+
     <div class="fos_comment_without_children_wrapper {{ parent is defined and parent is not null ? 'reply' }} ">
         <div class="fos_comment_comment_metas clearfix">
             {% block fos_comment_comment_metas %}
@@ -25,15 +26,23 @@
                             {{ comment.authorName }}
                         {% endif %}
                     </span>
-                    {#
-                    {% if comment.thread.request.author is same as comment.author %}
-                        <span class="badge">author</span>
-                    {% endif %}
-                    {% if comment.thread.request.executor is same as comment.author %}
-                        <span class="badge">executor</span>
-                    {% endif %}
-                    #}
-                    <span class="fos_comment_comment_date">{{ comment.createdAt|comment_date }}</span>
+
+                    <span class="fos_comment_comment_badge">
+                        {% if comment.thread.request.user is same as (comment.author) %}
+                            <span class="badge author">{{ 'COMMENT_ROLE_AUHTOR'|trans }}</span>
+                        {% endif  %}
+                        {% if comment.author.hasRole('ROLE_ADMIN') %}
+                            <span class="badge admin">{{ 'ROLE_ADMIN'|trans }}</span>
+                        {% endif %}
+                        {% if comment.author.hasRole('ROLE_MODERATOR') %}
+                            <span class="badge moderator">{{ 'ROLE_MODERATOR'|trans }}</span>
+                        {% endif %}
+                        {% if comment.thread.request.executor is same as (comment.author) %}
+                            <span class="badge executor">{{ 'ROLE_EXECUTOR'|trans }}</span>
+                        {% endif %}
+                    </span>
+
+                    <span class="fos_comment_comment_date">{{ comment.createdAt|relative_date }}</span>
                 {% endblock fos_comment_comment_metas_authorline %}
 
 
@@ -42,23 +51,23 @@
                     {% if fos_comment_can_delete_comment(comment) %}
                         {% if comment is fos_comment_in_state(constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_DELETED')) %}
                             {# undelete #}
-                            <button data-url="{{ url("fos_comment_remove_thread_comment", {"id": comment.thread.id, "commentId": comment.id, "value": constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_VISIBLE') }) }}" class="fa fa-rotate-left fos_comment_comment_remove" title="{{ 'fos_comment_comment_undelete'|trans({},'FOSCommentBundle')}}"></button>
+                            <span data-url="{{ url("fos_comment_remove_thread_comment", {"id": comment.thread.id, "commentId": comment.id, "value": constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_VISIBLE') }) }}" class="fa fa-rotate-left fos_comment_comment_remove" title="{{ 'fos_comment_comment_undelete'|trans({},'FOSCommentBundle')}}"></span>
                         {% else %}
                             {# delete #}
-                            <button data-url="{{ url("fos_comment_remove_thread_comment", {"id": comment.thread.id, "commentId": comment.id, "value":  constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_DELETED')}) }}" class="fa fa-close  fos_comment_comment_remove" title="{{ 'fos_comment_comment_delete'|trans({},'FOSCommentBundle')}}"></button>
+                            <span data-url="{{ url("fos_comment_remove_thread_comment", {"id": comment.thread.id, "commentId": comment.id, "value":  constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_DELETED')}) }}" class="fa fa-close  fos_comment_comment_remove" title="{{ 'fos_comment_comment_delete'|trans({},'FOSCommentBundle')}}"></span>
                         {% endif %}
                     {% endif %}
                 {% endblock fos_comment_comment_metas_delete %}
 
                 {% block fos_comment_comment_metas_edit %}
                     {% if fos_comment_can_edit_comment(comment) %}
-                        <button data-container="#fos_comment_comment_body_{{ comment.id }}" data-url="{{ url("fos_comment_edit_thread_comment", {"id": comment.thread.id, "commentId": comment.id}) }}" class="fa fa-edit fos_comment_comment_edit_show_form" title="{{ 'fos_comment_comment_edit'|trans({},'FOSCommentBundle')}}"></button>
+                        <span data-container="#fos_comment_comment_body_{{ comment.id }}" data-url="{{ url("fos_comment_edit_thread_comment", {"id": comment.thread.id, "commentId": comment.id}) }}" class="fa fa-edit fos_comment_comment_edit_show_form" title="{{ 'fos_comment_comment_edit'|trans({},'FOSCommentBundle')}}"></span>
                     {% endif %}
                 {% endblock fos_comment_comment_metas_edit %}
 
-                {% if fos_comment_can_comment(comment) %}
+                {% if fos_comment_can_comment(comment) and comment is not fos_comment_in_state(constant('FOS\\CommentBundle\\Model\\CommentInterface::STATE_DELETED')) %}
                         {% block fos_comment_comment_reply %}
-                            <button data-url="{{ url('fos_comment_new_thread_comments', {"id": comment.thread.id}) }}" data-name="{{ comment.authorName }}" data-parent-id="{{ comment.id }}" class="fa fa-reply fos_comment_comment_reply_show_form" title="{{ 'fos_comment_comment_show_reply'|trans({},'FOSCommentBundle')}}"></button>
+                            <span data-url="{{ url('fos_comment_new_thread_comments', {"id": comment.thread.id}) }}" data-name="{{ comment.authorName }}" data-parent-id="{{ comment.id }}" class="fa fa-reply fos_comment_comment_reply_show_form" title="{{ 'fos_comment_comment_show_reply'|trans({},'FOSCommentBundle')}}"></span>
                         {% endblock fos_comment_comment_reply %}
                 {% endif %}
 

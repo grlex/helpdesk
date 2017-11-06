@@ -21,10 +21,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity("login", message="user.already.exists")
  */
 class User extends BaseEntity implements UserInterface {
-    protected static $fields = ['id', 'name', 'login', 'password', 'roles', 'department', 'position' ];
-    public function __construct(){
-        $this->roles = new ArrayCollection();
+    public static function getFields(){
+        return ['id', 'name', 'login', 'password', 'roles', 'department', 'position'];
     }
+
     /**
      * @var int
      * @ORM\Id
@@ -85,6 +85,19 @@ class User extends BaseEntity implements UserInterface {
     private $removed=0;
 
 
+    public function __construct(){
+        $this->roles = new ArrayCollection();
+    }
+
+    public function hasRole($role){
+        $roles = is_array($role) ? $role : [$role];
+
+        return $this->roles->exists(function($index, $roleEntity) use ($roles){ return in_array($roleEntity->getRole(), $roles);});
+    }
+
+    /* ===================== =========== */
+
+
     /**
      * @return string The password
      */
@@ -119,6 +132,18 @@ class User extends BaseEntity implements UserInterface {
 
     public function __toString(){
         return $this->getName();
+    }
+
+    public static function getToStringFields(){
+        return ['name', 'login'];
+    }
+
+    /**
+     * Only for set text role names for displaying in views
+     * @param string[] $roles
+     */
+    public function setTextRoles($roles){
+        $this->roles = $roles;
     }
 
     /* ----------------------------------------- */
@@ -276,7 +301,7 @@ class User extends BaseEntity implements UserInterface {
      */
     public function addRole(\AppBundle\Entity\Role $role)
     {
-        $this->roles[] = $role;
+        $this->roles->add($role);
 
         return $this;
     }
@@ -291,17 +316,9 @@ class User extends BaseEntity implements UserInterface {
         $this->roles->removeElement($role);
     }
 
-    /**
-     * Get roles
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getRoleCollection()
-    {
-        return $this->roles;
-    }
+
     public function getRoles(){
-        return $this->roles->toArray();
+        return is_array($this->roles) ? $this->roles : $this->roles->toArray();
     }
 
     /**

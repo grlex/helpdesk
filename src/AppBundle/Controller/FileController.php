@@ -9,7 +9,7 @@
 namespace AppBundle\Controller;
 
 
-use AppBundle\Service\FileStorage;
+use AppBundle\FileManager\FileManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -25,9 +25,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller {
 
-    private $fileStorage;
-    public function __construct(FileStorage $fileStorage){
-        $this->fileStorage = $fileStorage;
+    private $fileManager;
+    public function __construct(FileManager $fileManager){
+        $this->fileManager = $fileManager;
     }
 
 
@@ -46,15 +46,15 @@ class FileController extends Controller {
             ));
         }
 
-        $page = parse_url($request->headers->get('referer'),PHP_URL_PATH);
-        $entity = $this->fileStorage->save($file, $page);
+        $entity = $this->fileManager->saveFile($file);
 
 
         return new JsonResponse(array(
             'success' => true,
-            'data'=> array(
-                'link'=> sprintf('/file/%s',$entity->getName()),
-                'id'=> $entity->getId()
+            'data'=>array(
+                'baseName' => $entity->getFilename(),
+                'id' => $entity->getId(),
+                'baseUrl'=>'/file/download/'
             )
 
         ));
@@ -63,14 +63,20 @@ class FileController extends Controller {
 
     /**
      * @param Request $request
-     * @Route("/file/{name}")
+     * @Route("/file/download/{name}")
      * @Method({"GET"})
      */
     public function downloadAction(Request $request, $name){
-        $file = $this->fileStorage->getFile($name);
-        if(!$file){
-            throw $this->createNotFoundException('Requested file couldn\'t be served');
+        $name = $this->fileManager->splitPrefixedName($name);
+        $fileEntity = $this->fileManager->getFileMeta($name['baseName']);
+        if(!$fileEntity){
+            //return new Response();
+            throw $this->createNotFoundException('Requested file not found');
         }
-        return new BinaryFileResponse($file);
+        $file = $this->fileManager->getFile($name['baseName'], $name['prefix']);
+        $response = new BinaryFileResponse($file);
+
+        $response->headers->set('Content-Disposition', sprintf(' attachment; filename=%s', $fileEntity->getOriginalName()));
+        return $response;
     }
 } 

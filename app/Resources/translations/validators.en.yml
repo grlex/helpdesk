@@ -1,0 +1,7 @@
+new-user.passwords.must.be.equal: Passwords must be equal
+
+
+user.already.exists: The user with such login already exists
+department.already.exists: The department with such name already exists
+active.already.exists: Such cabinet in the selected department already exists
+category.already.exists: The category with such name already exists

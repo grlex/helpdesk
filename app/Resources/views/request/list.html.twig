@@ -1,22 +1,22 @@
-{% extends 'request/base.html.twig' %}
 
 
-{% block content %}
-    {% from 'table-panel-macro.html.twig' import table_panel %}
-    {% set fields = ['id','name','status']%}
-    {# ['id','name','description','status', 'priority',
-    'active', 'file','category','user','executor','lifecycle', 'thread'] %} #}
-    {{ table_panel({
-        'items': entities,
-        'fields': fields,
-        'newBaseUri': '/request/new',
-        'editBaseUri': '/request/edit',
-        'removeBaseUri': '/request/remove',
-        'currentPage': currentPage,
-        'totalPages': totalPages,
-        'panelTitle': 'misc.requests',
-        'removeConfirmationMessage': 'items.remove-request.confirmation.%item%.%id%',
-        'removeForm': removeForm
-        })
-    }}
-{% endblock %}
+{% include 'request/status_actions.twig' %}
+{{ restore_context() }}
+
+{% set tablePanelConfig = {
+        'fields': ['id','name','textStatus'],
+
+        'actions':{
+            view: {
+                baseUri: '/request/view',
+                title: 'items._common.view'|trans,
+                text: 'items._common.view'|trans,
+                class: ' fa fa-eye',
+                position: 'body',
+            }
+        }|merge(status_actions)
+} %}
+
+{%  include 'commonEntity/list.html.twig' %}
+
+

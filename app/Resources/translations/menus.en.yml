@@ -1,0 +1,23 @@
+main.catalog: Catalog
+main.request: Requests
+main.user: Users
+main.logout: Logout
+main:
+    department:
+        list: Departments
+    active:
+        list: Actives
+    category:
+        list: Categories
+    request:
+        my-list: My
+        new: New
+        list: All
+        distribute-list: Distribute
+        process-list: Process
+        close-list: Close
+    user:
+        new: New
+        list: All
+
+

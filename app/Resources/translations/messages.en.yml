@@ -1,0 +1,53 @@
+main-menu.login: Enter
+oh.noes.everithing.broke: Oh noes, everithing broke!
+try.pressing.the.back.button.or.clicking.on.this.button: Try pressing the BACKSPACE button or clicking on this button
+take.me.home: Back to home page
+user.not.found: User is not found
+misc.request.error: There is an error occurred while processing your request
+comment_placeholder: Leave your comment here...
+
+items._common.title: Entries
+items._common.new: Add
+items._common.edit: Edit
+items._common.remove: Remove
+items._common.view: View
+items._common.pagination.page: Page
+items._common.pagination.of: of
+items._common.not-found: No entries found
+items.actions: Actions
+items.no-available-actions: No available action
+
+
+items.user.title: Users
+items.department.title: Departments
+items.active.title: Actives
+items.category.title: Categories
+
+items.request.title: Requests
+items.request.my-list-title: My Requests
+items.request.distribute-list-title: Undistributed requests
+items.request.process-list-title: Assigned to me requests
+items.request.close-list-title: Unclosed requests
+items.request.reopen: Reopen
+items.request.reject: Reject
+items.request.distribute: Distribute
+items.request.process: Process
+items.request.accept: Accept
+items.request.discard: Discard
+items.request.close: Close
+
+
+ROLE_ADMIN: Admin
+ROLE_MODERATOR: Moderator
+ROLE_EXECUTOR: Executor
+ROLE_USER: User
+
+COMMENT_ROLE_AUHTOR: Author
+
+date-format.hours: hour|hours
+date-format.minutes: minute|minutes
+date-format.seconds: second|seconds
+date-format.just-now: just now
+date-format.ago: ago
+
+

@@ -17,8 +17,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="active")
  * @UniqueEntity({"department","cabNumber"}, message="active.already.exists")
  */
-class Active extends BaseEntity implements NamedEntityInterface {
-    protected static $fields = ['id', 'department', 'cabNumber'];
+class Active extends BaseEntity {
+
+    public static function getFields() {
+        return ['id', 'department', 'cabNumber'];
+    }
     /**
      * @var int
      * @ORM\Id
@@ -40,6 +43,17 @@ class Active extends BaseEntity implements NamedEntityInterface {
      * @Assert\NotBlank(message="entity.common.notBlank")
      */
     private $department;
+
+
+    public function __toString(){
+        return $this->getCabNumber().', '.$this->getDepartment();
+    }
+    public static function getToStringFields(){
+        return ['cabNumber', 'department'];
+    }
+
+
+    /* ============================== ============= */
 
     /**
      * Get id
@@ -99,10 +113,4 @@ class Active extends BaseEntity implements NamedEntityInterface {
         return $this->department;
     }
 
-    public function __toString(){
-        return $this->getDepartment()->getName().'/'.$this->getCabNumber();
-    }
-    public function getName(){
-        return $this->getCabNumber();
-    }
 }

@@ -7,9 +7,11 @@
  */
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,20 +24,41 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Request extends BaseEntity
 {
-    protected static $fields = ['id', 'name', 'description', 'status', 'priority',
+    public static function getFields() {
+        return  ['id', 'name', 'description', 'status', 'textStatus', 'priority', 'textPriority',
         'active', 'files', 'category', 'user', 'executor', 'lifecycleSteps', 'thread'];
+    }
     const STATUS_OPENED = 1;
     const STATUS_DISTRIBUTED = 2;
     const STATUS_REJECTED = 3;
     const STATUS_PROCESSED = 4;
-    const STATUS_CHECKED_VALID = 5;
-    const STATUS_CHECKED_INVALID = 6;
+    const STATUS_ACCEPTED = 5;
+    const STATUS_DISCARDED = 6;
     const STATUS_CLOSED = 7;
-    //
+
+    protected static  $statuses = array(
+        self::STATUS_OPENED => 'opened',
+        self::STATUS_DISTRIBUTED => 'distributed',
+        self::STATUS_REJECTED => 'rejected',
+        self::STATUS_PROCESSED => 'processed',
+        self::STATUS_ACCEPTED => 'accepted',
+        self::STATUS_DISCARDED => 'discarded',
+        self::STATUS_CLOSED => 'closed',
+    );
+
     const PRIORITY_LOW = 1;
     const PRIORITY_MEDIUM = 2;
     const PRIORITY_HIGH = 3;
     const PRIORITY_CRITICAL = 4;
+
+    protected static  $priorities = array(
+        self::PRIORITY_LOW => 'low',
+        self::PRIORITY_MEDIUM => 'medium',
+        self::PRIORITY_HIGH => 'high',
+        self::PRIORITY_CRITICAL => 'critical',
+    );
+
+
     /**
      * @var int
      * @ORM\Id
@@ -52,9 +75,7 @@ class Request extends BaseEntity
     protected $name;
     /**
      * @var string Описание заявки
-     * @ORM\Column(type="string", length=200, nullable=true)
-     * @Assert\NotBlank(message="entity.common.notBlank")
-     * @Assert\Length( max = 200, maxMessage="model.common.strLength.{{limit}}" )
+     * @ORM\Column(type="text",  nullable=true)
      */
     protected $description;
 
@@ -76,7 +97,7 @@ class Request extends BaseEntity
     protected $active;
     /**
      * @var File[] Файлы, прикрепленные к заявке
-     * @ORM\ManyToMany(targetEntity="File", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\ManyToMany(targetEntity="File", cascade={"persist", "remove"}, orphanRemoval=true )
      * @ORM\JoinTable(name="request_file",
      *      joinColumns = { @ORM\JoinColumn(name="request_id", referencedColumnName="id", onDelete="CASCADE") },
      *      inverseJoinColumns = { @ORM\JoinColumn(name="file_id", referencedColumnName="id", onDelete="CASCADE") } )
@@ -103,13 +124,13 @@ class Request extends BaseEntity
 
     /**
      * @var LifecycleStep[] Временные отметки изменения статуса текущей заявки
-     * @ORM\OneToMany(targetEntity="LifecycleStep", mappedBy="request")
+     * @ORM\OneToMany(targetEntity="LifecycleStep", mappedBy="request", cascade={"persist","remove"})
      */
     protected $lifecycleSteps;
 
     /**
      * @var Thread
-     * @ORM\OneToOne(targetEntity="Thread")
+     * @ORM\OneToOne(targetEntity="Thread", mappedBy="request",  cascade={"persist","remove"})
      */
     protected $thread;
 
@@ -119,20 +140,36 @@ class Request extends BaseEntity
         return $this->getName();
     }
 
+    public static function getToStringFields(){
+        return ['name'];
+    }
 
 
+    public static function &getPriorities(){
+        return self::$priorities;
+    }
+    public static function &getStatuses(){
 
-    /* ====================================== ============= */
+        return self::$statuses;
+    }
+    public function getTextStatus(){
 
+        return $this->status ? self::$statuses[$this->status] : '';
+    }
+    public function getTextPriority(){
+        return $this->priority ? self::$priorities[$this->priority] : '';
+    }
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
         $this->lifecycleSteps = new \Doctrine\Common\Collections\ArrayCollection();
     }
+
+
+    /* ====================================== ============= */
+
+
 
     /**
      * Get id
@@ -379,6 +416,7 @@ class Request extends BaseEntity
      */
     public function addLifecycleStep(\AppBundle\Entity\LifecycleStep $lifecycleStep)
     {
+        $lifecycleStep->setRequest($this);
         $this->lifecycleSteps[] = $lifecycleStep;
 
         return $this;
@@ -414,6 +452,7 @@ class Request extends BaseEntity
     public function setThread(\AppBundle\Entity\Thread $thread = null)
     {
         $this->thread = $thread;
+        $thread->setRequest($this);
 
         return $this;
     }
@@ -426,5 +465,6 @@ class Request extends BaseEntity
     public function getThread()
     {
         return $this->thread;
+
     }
 }

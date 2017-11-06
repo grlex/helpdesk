@@ -1,0 +1,46 @@
+user:
+    name: Имя пользователя
+    login: Логин
+    password: Пароль
+    password-repeat: Повторите пароль
+    roles: Роли
+    choose-roles: Выберите роли
+    department: Отдел
+    position: Должность
+department:
+    name: Название
+active:
+    department: Отдел
+    cabNumber: Номер кабинета
+category:
+    name: Название
+request:
+    name: Название
+    description: Описание
+    textPriority: Приоритет
+    priority: Приоритет
+    priority.critical: Очень важный
+    priority.high: Важный
+    priority.medium: Обычный
+    priority.low: Низкий
+    textStatus: Статус
+    status: Статус
+    status.opened: Открыта
+    status.rejected: Отклонена
+    status.distributed: Назначена
+    status.processed: Обработана
+    status.accepted: Одобрена
+    status.discarded: Не одобрена
+    status.closed: Закрыта
+    status.changed_to_%status%: Установлен статус "%status%"
+    status.changed-by-admin: Статус изменен администратором
+    active: Кабинет и отдел
+    files: Прикрепленные файлы
+    files.add: Добавить
+    category: Категория проблемы в заявке
+    user: Инициатор заявки
+    executor: Исполнитель заявки
+    lifecycle_steps: История заявки
+
+lifecycleStep:
+    comment: Комментарий

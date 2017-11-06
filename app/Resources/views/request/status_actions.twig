@@ -1,0 +1,61 @@
+
+{% set status_actions = {
+        reject: {
+            baseUri: '/request/reject',
+            title: 'items.request.reject'|trans,
+            text: 'items.request.reject'|trans,
+            iconClass: 'fa fa-minus-circle',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        reopen: {
+            baseUri: '/request/reopen',
+            title: 'items.request.reopen'|trans,
+            text: 'items.request.reopen'|trans,
+            iconClass: 'fa fa-refresh',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        distribute: {
+            baseUri: '/request/distribute',
+            title: 'items.request.distribute'|trans,
+            text: 'items.request.distribute'|trans,
+            iconClass: 'fa fa-hand-o-up',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        process: {
+            baseUri: '/request/process',
+            title: 'items.request.process'|trans,
+            text: 'items.request.process'|trans,
+            iconClass: 'fa fa-chevron-right',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        accept: {
+            baseUri: '/request/accept',
+            title: 'items.request.accept'|trans,
+            text: 'items.request.accept'|trans,
+            iconClass: 'fa fa-thumbs-o-up',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        discard: {
+            baseUri: '/request/discard',
+            title: 'items.request.discard'|trans,
+            text: 'items.request.discard'|trans,
+            iconClass: 'fa fa-thumbs-o-down',
+            position: ['body', 'footer'],
+            modal: true
+        },
+        close: {
+            baseUri: '/request/close',
+            title: 'items.request.close'|trans,
+            text: 'items.request.close'|trans,
+            iconClass: 'fa fa-flag',
+            position: ['body', 'footer'],
+            modal: true
+        },
+    }
+%}
+{{ save_context() }}

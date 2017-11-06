@@ -38,7 +38,8 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     form_themes:
-        - '_themes/bootstrap_3_horizontal_layout_m.html.twig'
+        - '_themes/form_theme.html.twig'
+        - '_themes/file_collection_theme.html.twig'
 
 # Doctrine Configuration
 doctrine:
@@ -87,9 +88,9 @@ fos_comment:
             vote:    fos_comment.acl.vote.roles
         manager:
             thread:  fos_comment.manager.thread.acl
-            comment: fos_comment.manager.comment.acl
+            comment: fos_comment.custorm_manager.comment # custom comment manager
             vote:    fos_comment.manager.vote.acl
-        markup: markup.exercise_html_purifier
+        markup: custom_html_purifier
     acl_roles:
         comment:
             create: ROLE_USER
@@ -110,10 +111,10 @@ fos_comment:
 exercise_html_purifier:
     default:
         Cache.SerializerPath: '%kernel.cache_dir%/htmlpurifier'
-        HTML.AllowedElements:   [ 'h1', 'h1', 'h3', 'h4',
+        HTML.AllowedElements:   [ 'h1', 'h2', 'h3', 'h4',
                                   'blockquote',
-                                  'hr',
-                                  'strong', 'em', 'del',
+                                  'hr', 'br',
+                                  'strong', 'em', 'u',
                                   'sup', 'sub',
                                   'ul', 'ol', 'li',
                                   'img',
@@ -122,13 +123,8 @@ exercise_html_purifier:
 
         HTML.AllowedAttributes: [ '*.style',
                                   '*.title',
-                                  'a.href', 'a.title',
-                                  'img.src', 'img.alt' ]
+                                  'a.href', 'a.class',
+                                  'img.src', 'img.alt',  'img.data-file-id' ]
 
 
-assetic:
-    debug: '%kernel.debug%'
-    use_controller: '%kernel.debug%'
-    filters:
-        cssrewrite: ~
-    #bundles: [ "FOSCommentBundle" ]
+

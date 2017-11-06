@@ -1,4 +1,4 @@
-main.definition: Справочник
+main.catalog: Справочник
 main.request: Заявки
 main.user: Пользователи
 main.logout: Выйти
@@ -10,11 +10,12 @@ main:
     category:
         list: Категории
     request:
-        my: Мои
+        my-list: Мои
         new: Новая
         list: Весь список
-        assign: Распределить
-        process: Обработать
+        distribute-list: Распределить
+        process-list: Обработать
+        close-list: Закрыть
     user:
         new: Добавить
         list: Весь список

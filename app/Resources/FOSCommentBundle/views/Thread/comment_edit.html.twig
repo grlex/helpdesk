@@ -15,7 +15,7 @@
         {% block fos_comment_form_fields %}
             {{ form_errors(form) }}
             {{ form_errors(form.body) }}
-            {{ form_widget(form.body) }}
+            {{ form_widget(form.body, { attr:{ 'data-id': comment.id } }) }}
             {{ form_widget(form._token) }}
         {% endblock %}
 

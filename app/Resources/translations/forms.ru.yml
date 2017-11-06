@@ -1,62 +1,62 @@
 Bad credentials.: Неправильный логин или пароль.
-form:
-    common:
-        login: Логин
-        password: Пароль
-        cancel: Отмена
-        save: Сохранить
-        add: Добавить
-        remove: Удалить
+cancel: Отмена
+save: Сохранить
+add: Добавить
+remove: Удалить
+do: Выполнить
+enter: Войти
+login: Логин
+password: Пароль
+remember_me: Запомнить меня
+account-removed: Данный аккаунт был удален
 
-    login:
-        submit: Войти
-        remember_me: Запомнить меня
-        account-removed: Данный аккаунт был удален
-    user:
-        name: Имя пользователя
-        login: Логин
-        password: Пароль
-        password-repeat: Повторите пароль
-        roles: Роли
-        choose-roles: Выберите роли
-        department: Отдел
-        position: Должность
-    department:
-        name: Название
-    active:
-        department: Выбирете отдел
-        number: Номер кабинета
-    category:
-        name: Название
-    request:
-        name: Название
-        description: Описание
-        priority: Приоритет
-        priority.critical: Очень важный
-        priority.high: Важный
-        priority.medium: Обычный
-        priority.low: Низкий
-        status: Статус
-        status.opened: Открыта
-        status.rejected: Отклонена
-        status.distributed: Назначена
-        status.processed: Обработана
-        status.checked_valid: Подтверждена
-        status.checked_invalid: Обработана с ошибкой
-        status.closed: Закрыта
-        active: Кабинет и отдел
-        files: Прикрепленные файлы
-        files.add: Добавить
-        category: Категория проблемы в заявке
-        user: Инициатор заявки
-        executor: Исполнитель заявки
-        comments: Комментарии
-        comments.new.title: Добавить комментарий
-        comments.new.clear: Очистить
-        comments.new.submit: Добавить
-    comment_collection:
-        reply.title: Ответить
-        edit.title: Редактировать
-        remove.title: Удалить
 
+remove.title: Удаление
+remove.user.confirmation.%item%.%id%: Вы действительно хотите удалить пользователя  "%item%" [%id%]
+remove.department.confirmation.%item%.%id%: Вы действительно хотите удалить отдел  "%item%" [%id%]
+remove.active.confirmation.%item%.%id%: Вы действительно хотите удалить кабинет  "%item%" [%id%]
+remove.category.confirmation.%item%.%id%: Вы действительно хотите удалить категорию  "%item%" [%id%]
+remove.request.confirmation.%item%.%id%: Вы действительно хотите удалить заявку "%item%" [%id%]
+
+remove-group.user.confirmation: Вы действительно хотите удалить всеx выбранных пользовательей
+remove-group.department.confirmation: Вы действительно хотите удалить все выбранные отделы
+remove-group.active.confirmation: Вы действительно хотите удалить все выбранные кабинеты
+remove-group.category.confirmation: Вы действительно хотите удалить все выбранные категории
+remove-group.request.confirmation: Вы действительно хотите удалить все выбранные заявки
+
+
+reopen.request.title: Повторное открытие заявки
+reopen.request.submit: Открыть
+reopen.request.confirmation.%item%.%id%: Вы действительно хотите вновь открыть заявку  "%item%" [%id%]
+reopen-group.request.confirmation: Вы действительно хотите вновь открыть все выбранные заявки
+
+reject.request.title: Отклонение заявки
+reject.request.submit: Отклонить
+reject.request.confirmation.%item%.%id%: Вы действительно хотите отклонить заявку  "%item%" [%id%]
+reject-group.request.confirmation: Вы действительно хотите отклонить все выбранные заявки
+
+distribute.request.title: Распределение заявки
+distribute.request.submit: Распределить
+distribute.request.confirmation.%item%.%id%: Вы действительно хотите распределить заявку  "%item%" [%id%]
+distribute-group.request.confirmation: Вы действительно хотите распределить все выбранные заявки
+
+process.request.title: Выполнение заявки
+process.request.submit: Выполнить
+process.request.confirmation.%item%.%id%: Вы действительно хотите выполнить заявку  "%item%" [%id%]
+process-group.request.confirmation: Вы действительно хотите выполнить все выбранные заявки
+
+accept.request.title: Одобрение заявки
+accept.request.submit: Одобрить
+accept.request.confirmation.%item%.%id%: Вы действительно хотите одобрить заявку  "%item%" [%id%]
+accept-group.request.confirmation: Вы действительно хотите одобрить все выбранные заявки
+
+discard.request.title: Забраковать результат выполнения заявки
+discard.request.submit: Забраковать
+discard.request.confirmation.%item%.%id%: Вы действительно зотите забраковать результат выполнения заявки  "%item%" [%id%]
+discard-group.request.confirmation: Вы действительно хотите забраковать результаты выполнения всех заявок
+
+close.request.title: Закрытие заявки
+close.request.submit: Закрыть
+close.request.confirmation.%item%.%id%: Вы действительно хотите закрыть заявку  "%item%" [%id%]
+close-group.request.confirmation: Вы действительно хотите закрыть все выбранные заявки
 

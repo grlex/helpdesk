@@ -1,0 +1,46 @@
+user:
+    name: Name
+    login: Login
+    password: Password
+    password-repeat: Repeat password
+    roles: Roles
+    choose-roles: Choose roles
+    department: Department
+    position: Position
+department:
+    name: Name
+active:
+    department: Department
+    cabNumber: Cabinet number
+category:
+    name: Name
+request:
+    name: Name
+    description: Description
+    textPriority: Priority
+    priority: Priority
+    priority.critical: Critical
+    priority.high: High
+    priority.medium: Medium
+    priority.low: Low
+    textStatus: Status
+    status: Status
+    status.opened: Opened
+    status.rejected: Rejected
+    status.distributed: Distributed
+    status.processed: Processed
+    status.accepted: Accepted
+    status.discarded: Discarded
+    status.closed: Closed
+    status.changed_to_%status%: Status is changed to "%status%"
+    status.changed-by-admin: Status is changed by Admin
+    active: Cabinet
+    files: Attached files
+    files.add: Add
+    category: Category
+    user: Initiator
+    executor: Executor
+    lifecycle_steps: Request history
+
+lifecycleStep:
+    comment: Comment

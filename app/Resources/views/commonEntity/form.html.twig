@@ -1,0 +1,22 @@
+
+{% extends app.request.query.has('form-only') ? 'empty_template.html.twig' : 'main_template.html.twig' %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="entity-form">
+            {% if title is defined %}
+                <h3 class="title">{{ title }}</h3>
+            {% endif %}
+            {% if entities is defined and entities|length > 1 %}
+                <ul class="items-list" >
+                {% for entity in entities %}
+                    <li>{{ entity|to_string }} [{{ entity.id|default('no id') }}]</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {{ form(form, { attr: { class: 'wysiwyg-container'}}) }}
+        </div>
+    </div>
+{% endblock %}

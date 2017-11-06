@@ -1,4 +1,8 @@
-fos_comment_thread_close:                     Запретить комментирование
-fos_comment_thread_open:                      Разрешить комментирование
-fos_comment_comment_edit_submit:              Сохранить
-fos_comment_comment_new_submit:               Добавить комментарий
+fos_comment_thread_close:                     "Запретить комментирование"
+fos_comment_thread_open:                      "Разрешить комментирование"
+fos_comment_comment_edit_submit:              "Сохранить"
+fos_comment_comment_new_submit:               "Добавить комментарий"
+fos_comment_comment_reply_reply_to:           "Ответить пользователю %name%"
+fos_comment_comment_reply_submit:             "Ответить"
+fos_comment_thread_comment_count:             "комментарий|комментария|комментариев"
+

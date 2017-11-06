@@ -1,52 +1,165 @@
-.panel-table .panel-body{
+
+
+.table-panel{
+    position: relative;
+}
+.table-panel .panel-body{
     padding:0;
+    overflow-x: auto;
 }
 
-.panel-table .panel-body .table-bordered{
+
+.table-panel .panel-body .table{
     border-style: none;
     margin:0;
 }
+.table-panel .panel-body .table th{
+    position: relative;
+}
+.table-panel .panel-body .table th .filter{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
 
-.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type {
+    display: none;
+}
+
+.table-panel .panel-body .table th.filtering .filter{
+    display: block;
+}
+
+.table-panel .panel-body .table th:nth-child(-n+2),
+.table-panel .panel-body .table td:nth-child(-n+2){
     text-align:center;
-    width: 100px;
+    width: 3em;
 }
 
-.panel-table .panel-body .table-bordered > thead > tr > th:last-of-type,
-.panel-table .panel-body .table-bordered > tbody > tr > td:last-of-type {
-    border-right: 0px;
+
+.table-panel .panel-body .table > thead > tr > th:last-of-type,
+.table-panel .panel-body .table > tbody > tr > td:last-of-type {
+    border-right-color: transparent;
 }
 
-.panel-table .panel-body .table-bordered > thead > tr > th:first-of-type,
-.panel-table .panel-body .table-bordered > tbody > tr > td:first-of-type {
-    border-left: 0px;
+.table-panel .panel-body .table > thead > tr > th:first-of-type,
+.table-panel .panel-body .table > tbody > tr > td:first-of-type {
+    border-left-color: transparent;
 }
 
-.panel-table .panel-body .table-bordered > tbody > tr:first-of-type > td{
-    border-bottom: 0px;
-}
 
-.panel-table .panel-body .table-bordered > thead > tr:first-of-type > th{
+.table-panel .panel-body .table > thead > tr:first-of-type > th{
     border-top: 0px;
 }
 
-.panel-table .panel-footer .pagination{
+.table-panel .panel-body .table > tbody > tr > td{
+    line-height: 2.2em;
+}
+
+.table-panel .dropdown{
+    position: static;
+}
+.table-panel .dropdown > a{
+    color: #bbb;
+}
+
+.table-panel .dropdown > a:hover, .dropdown.open > a{
+    color: gray;
+}
+.table-panel .dropdown > a span{
+    display: inline-block;
+    padding: 0.5em;
+}
+.table-panel .dropdown > .dropdown-menu {
+    min-width: inherit;
+}
+
+.table-panel .dropdown > .dropdown-menu li a {
+    padding: 0.3em 1em;
+    display: block;
+}
+.table-panel .dropdown > .dropdown-menu li a em {
+    padding-right: 0.5em;
+    display: inline-block
+}
+
+.table-panel a.action{
+    cursor: pointer;
+}
+.table-panel  .group-actions{
+    padding: 0.5em 0;
+}
+.table-panel .group-actions span{
+    display: inline-block;
+    width: 3em;
+    margin: 0;
+    text-align: center;
+}
+.table-panel .group-actions .dropdown{
+    display: inline-block;
+    width: auto;
+    margin: 0;
+    text-align: center;
+}
+.table-panel .group-actions .dropdown > a{
+    display: inline-block;
+    padding: 0.3em;
+    color: #444;
+
+}
+.table-panel .group-actions .dropdown > a span{
+    width: 1em;
+    padding-left:1em;
+    padding-right: 1em;
+}
+
+.table-panel .group-actions .dropdown .dropdown-menu li{
+    position: relative;
+}
+.table-panel .group-actions .dropdown .dropdown-menu li::after{
+    display:none;
+    content: '';
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.1)
+}
+.table-panel .group-actions .dropdown .dropdown-menu li.disabled::after{
+    display:block;
+}
+
+
+.table-panel input.selector{
+    position: static;
+    display: inline-block;
+    margin: 0;
+}
+.table-panel .panel-footer .pagination{
     margin:0;
 }
-
-/*
-used to vertically center elements, may need modification if you're not using default sizes.
-*/
-.panel-table .panel-footer .col{
-    line-height: 34px;
-    height: 34px;
+.table-panel .panel-footer .pagination a.disabled{
+    color: #ccc;
+    background: white;
+    cursor: default;
+}
+.table-panel .panel-footer .pagination .current{
+    color:gray;
+    font-size: 1.2em;
+    background: #eee
 }
 
-.panel-table .panel-heading .col h3{
-    line-height: 30px;
-    height: 30px;
+.table-panel .panel-footer .col{
+    line-height: 2em;
+    height: 2.2em;
 }
 
-.panel-table .panel-body .table-bordered > tbody > tr > td{
-    line-height: 34px;
+.table-panel .panel-heading .col h3{
+    line-height: 2em;
+    height: 2.2em;
+}
+
+
+.modals-container .modal form.group > div > .form-group:not(.buttons) {
+    display: none;
 }

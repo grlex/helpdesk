@@ -1,0 +1,87 @@
+
+html{
+    height: 100%;
+    width: 100%;
+}
+body{
+    min-height: 100%;
+    min-width: 300px;
+    position: relative;
+    background: #F5F5F5;
+    font: 14px/1.5 sans-serif;
+}
+body > footer{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 4em;
+}
+body > main{
+    position: relative;
+    padding-bottom: 5em;
+}
+
+textarea { resize: vertical; }
+
+.entity-form .title,
+.entity-form .items-list{
+    text-align: center;
+}
+
+/*** request/view.html.twig ***/
+
+.request-view {
+    background: white;
+    font-size: 1.1em;
+    padding: 1em 0;
+
+
+}
+.request-view .row{
+    margin-bottom: 1em;
+}
+@media screen and (min-width: 768px) {
+    .request-view .row > :first-child {
+        text-align: right;
+    }
+}
+
+
+#request-history .step:nth-child(even) {
+    background-color: #F5F5F5;
+}
+
+
+#request-history .panel-body {
+    position: relative;
+    overflow-y: scroll;
+    height: 18em;
+    padding:0;
+
+}
+
+#request-history .step{
+    padding: 0.5em 1em;
+}
+
+
+#request-history .step .user{
+    color: #03658c;
+}
+
+#request-history .step .datetime{
+    color: #999;
+}
+
+#request-history .panel-heading {
+    background-color: #3d6da7 !important;
+    color: white !important;
+}
+.request-view .actions{
+    padding-bottom: 0.3em;
+}
+.request-view .actions .action{
+    cursor: pointer;
+}
+
+/*** --- ***/

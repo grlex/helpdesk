@@ -19,7 +19,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity("name", message="department.already.exists")
  */
 class Department extends BaseEntity {
-    protected static $fields = ['id', 'name'];
+    public static function getFields(){
+        return ['id', 'name'];
+    }
     /**
      * @var int
      * @ORM\Id
@@ -74,5 +76,8 @@ class Department extends BaseEntity {
 
     public function __toString(){
         return $this->getName();
+    }
+    public static function getToStringFields(){
+        return ['name'];
     }
 }

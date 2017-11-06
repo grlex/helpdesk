@@ -1,58 +1,67 @@
 main-menu.login: Войти
-misc.users: Пользователи
-misc.departments: Отделы
-misc.actives: Кабинты в отделах
-misc.categories: Категории
-misc.requests: Заявки
-misc.request.error: Во время обработки запроса произошла ошибка
-
 oh.noes.everithing.broke: О господи, все сломалось!
 try.pressing.the.back.button.or.clicking.on.this.button: Попробуйте нажать клавишу BACKSPACE или кнопку ниже
 take.me.home: Вернуться на главную
-items.new: Добавить
-items.edit: Изменить
-items.remove: Удалить
-items.pagination.page: Страница
-items.pagination.of: из
-items.not-found: Записей не найдено
-
-
-
-items.remove.confirmation.title: Удаление
-items.remove.confirmation.accept: Удалить
-items.remove.confirmation.discard: Отмена
-items.remove.confirmation.%item%.%id%: Вы действительно хотите удалить запись  %item%[%id]
-items.remove-user.confirmation.%item%.%id%: Вы действительно хотите удалить пользователя  %item%[%id]
-items.remove-department.confirmation.%item%.%id%: Вы действительно хотите удалить отдел  %item%[%id]
-items.remove-active.confirmation.%item%.%id%: Вы действительно хотите удалить кабинет  %item%[%id]
-items.remove-category.confirmation.%item%.%id%: Вы действительно хотите удалить категорию  %item%[%id]
-
-users.removing: Удаление пользователя
-users.removing.confirmation: Вы действительно хотите удалить пользователя
 user.not.found: Пользователь не найден
-departments.removing: Удаление отдела
-departments.removing.confirmation: Вы действительно хотите удалить отдел
-actives.removing: Удаление кабинета
-actives.removing.confirmation: Вы действительно хотите удалить кабинет
-categories.removing: Удаление категории
-categories.removing.confirmation: Вы действительно хотите удалить категорию
-requests.removing: Удаление заявки
-requests.removing.confirmation: Вы действительно хотите удалить заявку
+misc.request.error: Во время обработки запроса произошла ошибка
+comment_placeholder: Оставьте свой комментарий
+
+items._common.title: Записи
+items._common.new: Добавить
+items._common.edit: Изменить
+items._common.remove: Удалить
+items._common.view: Просмотр
+items._common.pagination.page: Страница
+items._common.pagination.of: из
+items._common.not-found: Записей не найдено
+items.actions: Действия
+items.no-available-actions: Нет доступных действий
+
+
+items.user.title: Пользователи
+items.department.title: Отделы
+items.active.title: Кабинты в отделах
+items.category.title: Категории
+
+items.request.title: Заявки
+items.request.my-list-title: Мои заявки
+items.request.distribute-list-title: Нераспределенные заявки
+items.request.process-list-title: Назначеные на меня заявки
+items.request.close-list-title: Незакрытые заявки
+items.request.reopen: Вновь открыть
+items.request.reject: Отклонить
+items.request.distribute: Распределить
+items.request.process: Выполнить
+items.request.accept: Одобрить
+items.request.discard: Не одобрить
+items.request.close: Закрыть
+
 
 ROLE_ADMIN: Администратор
 ROLE_MODERATOR: Модератор
 ROLE_EXECUTOR: Испольнитель
 ROLE_USER: Пользователь
 
+COMMENT_ROLE_AUHTOR: Автор
+
 date-format.hours: час|часа|часов
 date-format.minutes: минуту|минуты|минут
 date-format.seconds: секуну|секунды|секунд
 date-format.just-now: только что
 date-format.ago: назад
+January: Январь
+February: Февраль
+March: Март
+April: Апрель
+May: Май
+June: Июнь
+July: Июль
+August: Август
 September: Сентябрь
 October: Октябрь
 November: Ноябрь
 December: Декабрь
 
-comment_placeholder: Оставьте свой комментарий
+
+
 

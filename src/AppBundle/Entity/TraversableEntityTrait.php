@@ -9,6 +9,7 @@
 namespace AppBundle\Entity;
 
 
+
 trait TraversableEntityTrait {
 
     /**
@@ -52,7 +53,8 @@ trait TraversableEntityTrait {
      */
     public function current()
     {
-        $field = static::$fields[$this->iterationPosition];
+
+        $field = static::getFields()[$this->iterationPosition];
         return $this[$field];
     }
 
@@ -69,7 +71,7 @@ trait TraversableEntityTrait {
      */
     public function key()
     {
-        return static::$fields[$this->iterationPosition];
+        return static::getFields()[$this->iterationPosition];
     }
 
     /**
@@ -77,7 +79,7 @@ trait TraversableEntityTrait {
      */
     public function valid()
     {
-        return $this->iterationPosition < count(static::$fields);
+        return $this->iterationPosition < count(static::getFields());
     }
 
     /**
@@ -93,6 +95,14 @@ trait TraversableEntityTrait {
      */
     public function count()
     {
-        return count(static::$fields);
+        return count(static::getFields());
+    }
+
+    public function toArray(){
+        $arr = [];
+        foreach($this as $key => $value){
+            $arr[$key] = $value;
+        }
+        return $arr;
     }
 } 

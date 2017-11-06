@@ -1,0 +1,17 @@
+
+{
+    "currentPage": {{ currentPage }},
+    "totalPages": {{ totalPages }},
+    "entities": [
+        {% for entity in entities %}
+            {
+                {% for field, value in entity %}
+
+                    "{{ field }}" : "{{ value|to_string }}",
+                {% endfor %}
+                "_toString": "{{ entity|to_string }}"
+            }
+            {% if loop.index < entities|length %} , {% endif %}
+        {% endfor %}
+    ]
+}

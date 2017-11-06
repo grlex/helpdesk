@@ -36,27 +36,82 @@ services:
 
 
 
-    markup.exercise_html_purifier:
-        class: FOS\CommentBundle\Markup\HtmlPurifier
+    app.menu_builder:
+        class: AppBundle\Menu\Builder
+        arguments: [ '@security.authorization_checker' ]
+
+    app.main_menu:
+        class: Knp\Menu\MenuItem
+        factory: ["@app.menu_builder", createMainMenu]
+        public: true
+        tags:
+            - { name: knp_menu.menu, alias: main }
+
+
+    custom_html_purifier:
+        class: AppBundle\FOSComment\HtmlPurifier
         arguments: [ '@exercise_html_purifier.default' ]
+        public: true
 
+    #markup.exercise_html_purifier:
+    #    class: FOS\CommentBundle\Markup\HtmlPurifier
+    #    arguments: [ '@exercise_html_purifier.default' ]
 
-    app.file_storage:
-        class: AppBundle\Service\FileStorage
-        arguments: ['%file_storage_path%']
+    fos_comment.custorm_manager.comment:
+        class: AppBundle\FOSComment\ModifiedCommentManager
+        arguments:
+            - "@event_dispatcher"
+            - "@fos_comment.sorting_factory"
+            - "@fos_comment.entity_manager"
+            - "%fos_comment.model.comment.class%"
+        public: true
+
+    AppBundle\FOSComment\DoctrineEventSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+
+    fos_event_subscriber:
+        class: AppBundle\FOSComment\EventSubscriber
+
+    app.file_manager:
+        class: AppBundle\FileManager\FileManager
+        arguments:
+            - '@AppBundle\FileManager\Storage\ChainedStorage'
+           # - '@AppBundle\FileManager\Cleaner\DefaultCleaner'
+            - '@AppBundle\FileManager\Cleaner\SessionGCCleaner'
+            - '@doctrine'
         tags:
             - { name: doctrine.event_listener, event: preRemove }
-    AppBundle\Service\FileStorage: '@app.file_storage'
 
+    AppBundle\FileManager\FileManager: '@app.file_manager'
+
+    AppBundle\FileManager\Storage\GeneralStorage:
+        arguments: ['%file_storage_path%']
+
+    AppBundle\FileManager\Storage\ImageStorage:
+        arguments: ['%file_storage_path%']
+
+    AppBundle\FileManager\Storage\ChainedStorage:
+        calls:
+             - { method: 'addStorage', arguments: ['image', '@AppBundle\FileManager\Storage\ImageStorage'] }
+             - { method: 'addStorage', arguments: ['general', '@AppBundle\FileManager\Storage\GeneralStorage'] }
+
+    AppBundle\FileManager\Cleaner\SessionGCCleaner:
+        arguments: []
     AppBundle\Form\Transformer\FileTransformer:
         arguments:
             - '@doctrine'
+
     AppBundle\Form\FileType:
         arguments:
             - '@AppBundle\Form\Transformer\FileTransformer'
         tags:
             - { name: 'form.type' }
+
     session.handler:
-        class: AppBundle\Service\SessionHandler
-        arguments: [ '%file_storage_path%', '@doctrine' ]
+        class: AppBundle\Session\SessionHandler
+
+
+
+
 

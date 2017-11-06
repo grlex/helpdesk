@@ -18,8 +18,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="category")
  * @UniqueEntity("name", message="category.already.exists")
  */
-class Category extends BaseEntity implements NamedEntityInterface {
-    protected static $fields = ['id', 'name'];
+class Category extends BaseEntity {
+    public static function getFields() {
+        return  ['id', 'name'];
+    }
     /**
      * @var int
      * @ORM\Id
@@ -71,5 +73,8 @@ class Category extends BaseEntity implements NamedEntityInterface {
 
     public function __toString(){
         return $this->getName();
+    }
+    public static function getToStringFields(){
+        return ['name'];
     }
 }

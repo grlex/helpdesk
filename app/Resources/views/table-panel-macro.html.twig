@@ -1,85 +1,95 @@
 
-
 {% macro table_panel(params) %}
-    {% from _self import actionButton %}
-    <script>
-        function prepareRemovePopup(id, removeUri, bodyMessage){
-            $('#remove-popup .modal-body p')
-                    .text(bodyMessage);
-            $('#remove-popup .accept-button')
-                    .click(function() {
-                        $('#remove-popup .remove-item form .id').val(id);
-                        $('#remove-popup .remove-item form').attr('action',removeUri).submit();
-                    });
-        }
-    </script>
+    {% from _self import actionButton, actionModal %}
 
     {% set params = {
                         headers: [],
                         items: [],
                         fields: [],
-                        newBaseUri: null,
-                        editBaseUri: null,
-                        removeBaseUri: null,
-                        currentPage: 1,
-                        totalPages: 1,
-                        fieldsTrimming: [],
-                        panelTitle: 'items',
-                        newTitle: 'items.new',
-                        editTitle: 'items.edit',
-                        removeTitle: 'items.remove',
-                        notFoundTitle: 'items.not-found',
-                        removeConfirmationMessage: 'items.remove.confirmation.%item%.%id%',
-                        nameField: 'name',
-                        newButtonVisibleForRoles: ['ROLE_ADMIN'],
-                        editButtonVisibleForRoles: ['ROLE_ADMIN'],
-                        removeButtonVisibleForRoles: ['ROLE_ADMIN'],
-                        additionalActionButtons: [],
-                        formName: 'form'
+                        fieldsTrimming: {},
 
-                     }|merge(params) %}
+                        panelTitle: 'items._common.title'|trans,
+                        notFoundTitle: 'items._common.not-found'|trans,
+                        pagination: {
+                            currentPage: 1,
+                            totalPages: 1,
+                            queryParams: {}
+                        },
+
+                        filterForm: null,
+                        canActCallback: null,
 
 
+                        actions: {
 
-    {% set newButtonVisible = false %}
-    {% set editButtonVisible = false %}
-    {% set removeButtonVisible = false %}
+                            new: {
+                                uri: null,
+                                title: '',
+                                text: 'items._common.new'|trans,
+                                class: 'btn btn-primary fa fa-search',
+                                position: 'header',
+                            },
+                            edit: {
+                                baseUri: null,
+                                title: 'items._common.edit'|trans,
+                                text: 'items._common.edit'|trans,
+                                iconClass: 'fa fa-pencil',
+                                position: 'body',
+                            },
+                            remove: {
+                                baseUri: null,
+                                title: 'items._common.remove'|trans,
+                                text: 'items._common.remove'|trans,
+                                iconClass: 'fa fa-close',
+                                position: ['body', 'footer'],
+                                modal: true,
+                            }
+                        }
+                     }|merge_recursive(params) %}
 
-    {% for role in params.newButtonVisibleForRoles if app.user and newButtonVisible != true %}
-        {% set newButtonVisible = is_granted(role) ? true : false %}
-    {% endfor %}
-    {% for role in params.editButtonVisibleForRoles if app.user and editButtonVisible != true %}
-        {% set editButtonVisible = is_granted(role) ? true : false %}
-    {% endfor %}
-    {% for role in params.removeButtonVisibleForRoles if app.user and removeButtonVisible != true %}
-        {% set removeButtonVisible = is_granted(role) ? true : false %}
-    {% endfor %}
-
-
-
-    <div class="panel panel-default panel-table">
+    {% set groupActions = {} %}
+    <div class="panel panel-default table-panel">
         <div class="panel-heading">
             <div class="row">
                 <div class="col col-xs-6">
-                    <h3 class="panel-title">{{ params.panelTitle|trans }}</h3>
+                    <h3 class="panel-title">{{ params.panelTitle }}</h3>
                 </div>
                 <div class="col col-xs-6 text-right">
-                    {% if(params.newTitle and newButtonVisible) %}
-                        <a href="{{ params.newBaseUri }}" class="btn btn-sm btn-primary btn-create">{{ params.newTitle|trans() }}</a>
-                    {% endif %}
+                    <button  class="btn btn-default filter-switcher">
+                        <span class="fa fa-search"></span>
+                    </button>
+                    {% for key, action in params.actions if action is allowed_action(key, 'header', null, params.canActCallback) %}
+                        {{ actionButton(key, action) }}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        <div class="panel-body" style="overflow: auto">
+        <div class="panel-body">
             <table class="table table-striped table-bordered table-list">
                 <thead>
                 <tr>
-                    <th><em class="glyphicon glyphicon-cog"></em></th>
+                    <th class="center-cell"><input class="selector selector-all" type="checkbox" name="selector[all]"/></th>
 
+                    <th class="actions-header"><em class="fa fa-cog"></em></th>
 
                     {% for header in params.headers|default(params.fields) %}
-                        <th>{{ header|trans() }}</th>
+                        <th class="field-header"
+                            data-field-name="{{ params.fields[loop.index0] }}"
+                            data-field-trimming="{{ params.fieldsTrimming[params.fields[loop.index0]]|default('') }}">
+                            <span class="header">{{ header }}</span>
+                            <div class="filter">
+                                <div class="input-group">
+                                    {{ form_widget(params.filterForm[params.fields[loop.index0]]) }}
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default cleaner">
+                                            <span class="fa fa-close"></span>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </th>
                     {% endfor %}
+
                 </tr>
                 </thead>
                 <tbody>
@@ -88,136 +98,169 @@
                 {% for item in params.items  %}
                     {% set fields = params.fields ?: item|keys %}
                     <tr>
-                        <td align="center">
-                            {% if editButtonVisible %}
+                        <td><input class="selector selector-single"
+                                   type="checkbox"
+                                   data-id="{{ item.id }}"
+                                   data-name="{{ item|to_string }}"
+                                   name="selector[{{ item.id }}]"/></td>
+                        <td class="actions">
+                            <div class="dropdown actions single">
+                                <a      href="#"
+                                        data-toggle="dropdown" >
+                                    <span class="fa fa-bars"></span>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dLabel">
+                                    {% for key,action in params.actions if action is allowed_action(key, 'body', [item], params.canActCallback) %}
+                                        <li>{{ actionButton(key, action, item) }}</li>
+                                        {% if 'footer' in action.position %}
+                                            {% set groupActions = groupActions|merge({(key):action}) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
 
-                                {{ actionButton({
-                                        href: 'id' in fields and params.editBaseUri ? '%s/%d'|format(params.editBaseUri,item.id)|raw ,
-                                        class: "btn btn-default",
-                                        title: params.editTitle|trans,
-                                        iconClass: "glyphicon glyphicon-pencil"
-                                }) }}
-                            {% endif %}
-                            {% if removeButtonVisible %}
-                                {% set removeItemUri = '%s/%d'|format(params.removeBaseUri, item.id)|raw %}
-                                {% set removeConfirmationMessage =  params.removeConfirmationMessage|trans({'%item%': item[params.nameField], '%id': item['id']})  %}
-                                {{ actionButton({
-                                        onclick: "prepareRemovePopup(%d, '%s','%s')"|format(item.id, removeItemUri, removeConfirmationMessage) ,
-                                        class: "btn btn-danger",
-                                        title: params.removeTitle|trans,
-                                        datas: {'toggle': 'modal', 'target': '#remove-popup'},
-                                        iconClass: "glyphicon glyphicon-trash"
-                                }) }}
-                            {% endif %}
                         </td>
                         {% for field in fields %}
-                            {% set displayValue = item[field] is  typeof('array') ? item[field]|join(', ') : item[field] %}
+                            {% set displayValue = item[field]|to_string %}
                             {% set displayValue = (field in trimmingFields and displayValue|length > params.fieldsTrimming[field]
                                              ? displayValue|slice(0,params.fieldsTrimming[field]) ~ '...'
                                              : displayValue) %}
-                            <td>
-                                {{ displayValue }}
-                            </td>
+                            <td>{{ displayValue }}</td>
                         {% endfor %}
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="{{ (params.fields|length ?: 1) +1 }}">{{ params.notFoundTitle|trans() }}</td>
+                        <td  colspan="{{ (params.fields|length ?: 1) +2 }}">{{ params.notFoundTitle }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
-
+            <div class="group-actions">
+                {% spaceless %}
+                    <span class="checkbox"><input class="selector selector-all" type="checkbox" name="selector[all]"/></span>
+                    <div class="dropdown actions group">
+                        <a href="#"
+                           data-toggle="dropdown" >
+                            <span class="fa fa-caret-down"></span>
+                            {{ 'items.actions'|trans }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dLabel">
+                            {% for key, action in groupActions %}
+                                <li>
+                                    {{ actionButton(key, action) }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endspaceless %}
+            </div>
         </div>
         <div class="panel-footer">
             <div class="row">
-                <div class="col col-xs-6 col-sm-4">
-                    {{ 'items.pagination.page'|trans() }}
-                    {{ params.currentPage }}
-                    {{ 'items.pagination.of'|trans() }}
-                    {{ params.totalPages }}
-                </div>
-                <div class="col col-xs-6 col-sm-8">
-                    {% set paginationMin = params.currentPage>2 ? params.currentPage-2 : 1 %}
-                    {% set paginationMax = (params.currentPage< params.totalPages-2) ? params.currentPage+2 : params.totalPages  %}
+                {% with params.pagination %}
+                    <div class="col col-xs-6 col-sm-4">
+                        {{ 'items._common.pagination.page'|trans() }}
+                        {{ currentPage }}
+                        {{ 'items._common.pagination.of'|trans() }}
+                        {{ totalPages }}
+                    </div>
+                    <div class="col col-xs-6 col-sm-8">
 
-                    <nav class=" pull-right" aria-label="Page navigation">
-                        <ul class="pagination">
-                            <li>
-                                <a {{ params.currentPage==1 ? 'disabled' }}
-                                   href="{{ app.request.uri }}?pageSize={{ params.items|length }}&page={{ params.currentPage-1 }}">
-                                    <span aria-hidden="true">&laquo;</span>
-                               </a>
-                            </li>
-                            {% for pageNumber in paginationMin..paginationMax %}
-                                <li class="hidden-xs">
-                                    {% if pageNumber == params.currentPage %}
-                                        <span style="color:gray; font-size: 1.2em; background: #eee">{{ pageNumber }}</span>
-                                    {% else %}
-                                        <a href="/user/list?pageSize={{ params.items|length }}&page={{ pageNumber }}">{{ pageNumber }}</a>
-                                    {% endif %}
+
+                        {% set firstPage = currentPage>2 ? currentPage-2 : 1 %}
+                        {% set lastPage = (currentPage< totalPages-2) ? currentPage+2 : totalPages  %}
+                        {% set pageUri = app.request.uri|replace_uri_params(queryParams|merge({page: '__page__'})) %}
+
+                        <nav class=" pull-right" aria-label="Page navigation">
+                            <ul class="pagination">
+
+                                <li class="page-nav prev">
+                                    <a class="{{ currentPage==1 ? 'disabled' }}"
+                                       href="{{ currentPage==1 ? '#'
+                                                : pageUri|replace({'__page__':currentPage-1}) }}">
+                                        <span>&laquo;</span>
+                                   </a>
                                 </li>
-                            {% endfor %}
-                            <li>
-                                <a {{ params.currentPage==params.totalPages ? 'disabled' }}
-                                    aria-label="Next"
-                                    href="{{ app.request.pathInfo }}?pageSize={{ params.items|length }}&page={{ params.currentPage+1 }}">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                                {% for pageNumber in firstPage..lastPage %}
+                                    <li class="hidden-xs">
+                                        {% if pageNumber == currentPage %}
+                                            <span class="current">{{ pageNumber }}</span>
+                                        {% else %}
+                                            <a href="{{ pageUri|replace({'__page__':pageNumber}) }}">{{ pageNumber }}</a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                                <li class="page-nav next">
+                                    <a class="{{ currentPage==totalPages ? 'disabled' }}"
+                                        href="{{ currentPage==totalPages ? ''
+                                                 : pageUri|replace({'__page__':currentPage+1}) }}">
+                                        <span>&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    <div id="table-panel-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
 
                 </div>
             </div>
         </div>
     </div>
-    <div id='remove-popup' class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{{ 'items.remove.confirmation.title'|trans }}</h4>
-                </div>
-                <div class="modal-body">
-                    <p></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ 'items.remove.confirmation.discard'|trans }}</button>
-                    <button type="button" class="accept-button btn btn-primary">{{ 'items.remove.confirmation.accept'|trans }}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-        <div class="remove-item" style="display:none">
-            {{ form(params.removeForm) }}
-        </div>
-    </div><!-- /.modal -->
+
 {% endmacro %}
 
+{% macro actionButton(key, action, item=null, modalId='table-panel-modal') %}
 
-{% macro actionButton(args) %}
-    {% set args = {
-        href: '',
-        onclick: '',
+    {% set action = {
+        uri: '',
+        baseUri: '',
         class: '',
         title: '',
-        datas: [],
+        text: '',
+        modal: false,
         iconClass: '',
+    }|merge(action) %}
 
-    }|merge(args) %}
+    {% set id = item.id|default('') %}
+    {% set name = item|to_string %}
 
-    <a      href="{{ args.href }}"
-            onclick = "{{ args.onclick }}"
-            class="{{ args.class }} "
-            title="{{ args.title }}"
 
-    {% for data,value in args.datas  %}
-        data-{{ data }}="{{ value }}"
-    {% endfor %}
-    >
-    <em class="{{ args.iconClass }}"></em>
+    {% set uri =  action.uri ? action.uri : (  action.baseUri ? '%s/%s'|format(action.baseUri, id) : '#')  %}
+
+    <a      class="action {{ action.class }} "
+            title="{{ action.title }}"
+            data-action="{{ key }}"
+
+            {% if action.modal  %}
+                data-toggle="modal"
+                data-target="{{ '#'~modalId  }}"
+                data-uri="{{ uri }}"
+            {% else %}
+                href="{{  uri }}"
+            {% endif %}
+            >
+        <em class="{{ action.iconClass }}"></em>
+
+        {{ action.text }}
     </a>
+
+
 {% endmacro %}
+
+
+
+
 
 
 

@@ -9,88 +9,64 @@
 namespace AppBundle\Menu;
 
 
+
 use Knp\Menu\FactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
-class Builder implements ContainerAwareInterface {
-    use ContainerAwareTrait; // $this->container
+class Builder {
+    private $authChecker;
+    private $factory;
+    public function __construct(AuthorizationChecker $authChecker, FactoryInterface $factory){
+        $this->authChecker = $authChecker;
+        $this->factory = $factory;
+    }
 
-    public function mainMenu(FactoryInterface $factory, array $options){
+    public function createMainMenu(){
 
-        $root = $factory->createItem('root',array())->setChildrenAttribute('class','nav navbar-nav navbar-left');
+        $root = $this->factory->createItem('root',array())->setChildrenAttribute('class','nav navbar-nav navbar-left');
 
-        $authChecker = $this->container->get('security.authorization_checker');
+        $this->buildCatalogSection($root);
+        $this->buildRequestSection($root);
+        $this->buildUserSection($root);
+        $root->addChild('main.logout', array('uri'=>'/account/logout'));
 
-        if($authChecker->isGranted('ROLE_ADMIN')){
-            $this->buildAdminMenu($root, $options);
-        }
-        else if($authChecker->isGranted('ROLE_MODERATOR')){
-            $this->buildModeratormenu($root, $options);
-        }
-        else if($authChecker->isGranted('ROLE_EXECUTOR')){
-            $this->buildExecutorMenu($root, $options);
-        }
-        else if($authChecker->isGranted('ROLE_USER')){
-            $this->buildUserMenu($root, $options);
-        }
-        else{
-
-        }
         $this->setTranslationDomainRecursive($root,'menus');
         $this->setDropDowns($root, 1);
 
         return $root;
     }
-    private function buildAdminMenu($root, $options){
-        $root->addChild('main.definition');
-        $root['main.definition']->addChild('main.category.list', array('uri'=>'/category/list'));
-        $root['main.definition']->addChild('main.department.list', array('uri'=>'/department/list'));
-        $root['main.definition']->addChild('main.active.list', array('uri'=>'/active/list'));
 
+    private function buildCatalogSection($root, $options = []){
+
+        if($this->authChecker->isGranted('ROLE_ADMIN')){
+            $root->addChild('main.catalog');
+            $root['main.catalog']->addChild('main.category.list', array('uri'=>'/category/list'));
+            $root['main.catalog']->addChild('main.department.list', array('uri'=>'/department/list'));
+            $root['main.catalog']->addChild('main.active.list', array('uri'=>'/active/list'));
+        }
+    }
+
+    private function buildRequestSection($root, $options = []){
         $root->addChild('main.request');
-        $root['main.request']->addChild('main.request.my', array('uri'=>'/request/my'));
         $root['main.request']->addChild('main.request.new', array('uri'=>'/request/new'));
+        $root['main.request']->addChild('main.request.my-list', array('uri'=>'/request/my-list'));
+        if($this->authChecker->isGranted('ROLE_MODERATOR'))
+            $root['main.request']->addChild('main.request.distribute-list', array('uri'=>'/request/distribute-list'));
+        if($this->authChecker->isGranted('ROLE_EXECUTOR'))
+            $root['main.request']->addChild('main.request.process-list', array('uri'=>'/request/process-list'));
+        if($this->authChecker->isGranted('ROLE_MODERATOR'))
+            $root['main.request']->addChild('main.request.close-list', array('uri'=>'/request/close-list'));
         $root['main.request']->addChild('main.request.list', array('uri'=>'/request/list'));
-
-        $root->addChild('main.user');
-        $root['main.user']->addChild('main.user.new', array('uri'=>'/user/new'));
-        $root['main.user']->addChild('main.user.list', array('uri'=>'/user/list'));
-
-        $root->addChild('main.logout', array('uri'=>'/account/logout'));
     }
-    private function buildModeratorMenu($root, $options){
-        $root->addChild('main.request');
-        $root['main.request']->addChild('main.request.my', array('uri'=>'/request/my'));
-        $root['main.request']->addChild('main.request.new', array('uri'=>'/request/new'));
-        $root['main.request']->addChild('main.request.assign', array('uri'=>'/request/assign'));
 
-        $root->addChild('main.user');
-        $root['main.user']->addChild('main.user.list', array('uri'=>'/user/list'));
-
-        $root->addChild('main.logout', array('uri'=>'/account/logout'));
+    private function buildUserSection($root, $options = []){
+        if($this->authChecker->isGranted('ROLE_ADMIN')){
+            $root->addChild('main.user');
+            $root['main.user']->addChild('main.user.new', array('uri'=>'/user/new'));
+            $root['main.user']->addChild('main.user.list', array('uri'=>'/user/list'));
+        }
     }
-    private function buildExecutorMenu($root, $options){
-        $root->addChild('main.request');
-        $root['main.request']->addChild('main.request.my', array('uri'=>'/request/my'));
-        $root['main.request']->addChild('main.request.new', array('uri'=>'/request/new'));
-        $root['main.request']->addChild('main.request.process', array('uri'=>'/request/process'));
 
-        $root->addChild('main.user');
-        $root['main.user']->addChild('main.user.list', array('uri'=>'/user/list'));
-
-        $root->addChild('main.logout', array('uri'=>'/account/logout'));
-    }
-    private function buildUserMenu($root, $options){
-        $root->addChild('main.request', array('uri'=>''));
-        $root['main.request']->addChild('main.request.my', array('uri'=>'/request/my'));
-        $root['main.request']->addChild('main.request.new', array('uri'=>'/request/new'));
-
-        $root->addChild('main.user', array('uri'=>''));
-        $root['main.user']->addChild('main.user.list', array('uri'=>'/user/list'));
-
-        $root->addChild('main.logout', array('uri'=>'/account/logout'));
-    }
     private function setTranslationDomainRecursive($menuItem, $domain){
         $menuItem->setExtra('translation_domain',$domain);
         $childItems = $menuItem->getChildren();

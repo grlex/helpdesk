@@ -9,32 +9,40 @@
 namespace AppBundle\Controller;
 
 
-use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Form\RemoveFormType;
-use AppBundle\Entity\NamedEntityInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use AppBundle\Entity\BaseEntity;
+use AppBundle\EntityListFilter\EntityListFilter;
+use AppBundle\EntityListFilter\FilterBuilder\AppFilterBuilder;
 
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
+
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Form\Extension\Core\Type;
+
+use AppBundle\Form\EntityFilterType;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 trait EntityControllerTrait {
 
     protected $entityClass;
-    protected $newFormClass;
-    protected $editFormClass;
+    protected $formClass;
     protected $viewBaseDir;
-    public function initialize($entityClass, $newFormClass=null, $editFormClass=null, $viewBaseDir=null){
+    protected $entityName;
+
+    public function initialize($entityClass){
         $this->entityClass= $entityClass;
-        $this->newFormClass = $newFormClass ?: preg_replace('/Entity/','Form',$entityClass).'NewType';
-        $this->editFormClass = $editFormClass ?: preg_replace('/Entity/','Form',$entityClass).'EditType';
-        $this->viewBaseDir = $viewBaseDir ?: substr(strtolower(strrchr($entityClass,'\\')),1);
-        $reflection = new \ReflectionClass($entityClass);
-        if(!$reflection->implementsInterface(NamedEntityInterface::class)){
-            throw new InvalidArgumentException('Entity class MUST implement NamedEntityInterface');
-        }
+        $this->formClass =  preg_replace('/Entity/','Form',$entityClass).'Type';
+        $this->entityName = substr(strtolower(strrchr($entityClass,'\\')),1);
+        $this->viewBaseDir = $this->entityName;
+
     }
+
+
     /**
      * @param int $page
      * @param int $pageSize
@@ -43,57 +51,102 @@ trait EntityControllerTrait {
     public function listAction(Request $request){
 
 
+
         $page = intval($request->query->get('page',1));
         $page = $page>0 ? $page : 1;
         $pageSize = intval($request->query->get('pageSize',10));
         $pageSize = $pageSize>0 ? $pageSize : 10;
 
-        $queryBuilder = $this->get('doctrine')->getRepository($this->entityClass)->createQueryBuilder('entity');
+
+
+        $filterForm = $this->createFilterForm();
+        $filterForm->handleRequest($request);
+
+
+        $entityAlias = 'e';
+        $entityMetadata = $this->get('doctrine')->getEntityManager()->getClassMetadata($this->entityClass);
+
+        $queryBuilder = $this->get('doctrine')->getRepository($this->entityClass)->createQueryBuilder($entityAlias);
+
+
+        $filter = new EntityListFilter($filterForm->getData(), $entityMetadata);
+        $filter->setBuilder(new AppFilterBuilder($this->get('translator'), $this->get('doctrine'), $entityAlias));
+        $filter->applyFilter($queryBuilder);
+
+        //dump($request->query, $filterForm->getData(), $queryBuilder->getDql());die();
+
+
         $this->onPreQueryList($queryBuilder);
 
-        $entitiesCount = $queryBuilder->select('count(entity)')->getQuery()->getSingleScalarResult();
+
+        $entitiesCount = $queryBuilder->select(sprintf('count(%s)',$entityAlias))->getQuery()->getSingleScalarResult();
         $totalPages = ceil($entitiesCount/$pageSize);
         $totalPages = $totalPages ?: 1;
 
-        $entities = $queryBuilder->select('entity')->getQuery()
-            ->setFirstResult(($page-1)*$pageSize)
-            ->setMaxResults($pageSize)
-            ->getResult();
+        if($page>$totalPages){
+            $request->query->replace( ['page' => $totalPages] );
+            $queryParams = $request->query->all();
+            $uri = sprintf('%s?%s',$request->getPathInfo(), http_build_query($queryParams));
+            return $this->redirect($uri);
+        }
 
-        $entities = $this->onPostQueryList($entities) ?: $entities;
-        return $this->render(sprintf('/%s/list.html.twig',$this->viewBaseDir),array(
+        //dump($totalPages, $queryBuilder->getQuery()->getSql());
+
+        $queryBuilder->setFirstResult(($page-1)*$pageSize)->setMaxResults($pageSize);
+        $entities = $queryBuilder->select($entityAlias)->getQuery()->getResult();
+
+        //dump($filterForm->getData(), $queryBuilder->getDql(), $entities);//die();
+
+        $this->onPostQueryList($entities);
+
+        $this->checkAccess('list', $entities );
+
+
+        $viewName = 'list';//$request->query->has('table-only') ? 'list_table' : 'list';
+
+        $viewVars = array(
             'entities'=>$entities,
             'currentPage'=>$page,
-            'totalPages'=>+$totalPages,
-            'removeForm'=> $this->createForm(RemoveFormType::class)->createView()
-        ));
+            'totalPages'=>intval($totalPages),
+            'filterForm'=> $filterForm->createView(),
+            'fields'=> call_user_func([$this->entityClass, 'getFields']),
+            'entityName'=> $this->entityName,
+            'canActCallback' => function($action, $items){
+                $items = is_array($items) ? $items : [ $items ];
+                return $this->canAct($action, $items );
+            }
+        );
+
+        return $this->getResponse($viewName, $viewVars);
+
     }
     /**
      * @param Request $request
      */
     public function newAction(Request $request){
 
-
-        $options = array();
-        if($this->editFormClass == $this->newFormClass) $options['formUsage']='new';
-        $form = $this->createForm($this->newFormClass, null, $options);
+        $form = $this->createNewForm();
 
         $form->handleRequest($request);
+
+        $this->checkAccess('new', [$form->getData()] );
+
         $isValid = $this->onNewValidate($form)!==false;
         if($form->isSubmitted() && $form->isValid()  && $isValid){
             $entity = $form->getData();
-            if($this->OnPreNewPersist($entity)!==false) {
+            if($this->OnPreAdd($entity)!==false) {
                 $em = $this->get('doctrine')->getManager();
                 $em->persist($entity);
                 $em->flush();
-                $this->onPostNewPersist($entity);
+                $this->onPostAdd($entity);
             }
-            return $this->redirect(sprintf('/%s/list',$this->viewBaseDir));
+
+            return $this->redirect($form['_back_uri']->getData());
         }
 
 
 
-        return $this->render(sprintf('/%s/new.html.twig',$this->viewBaseDir), array('form'=>$form->createView()));
+        return $this->getResponse('form', array('form'=>$form->createView()));
     }
 
     /**
@@ -108,24 +161,25 @@ trait EntityControllerTrait {
             throw $this->createNotFoundException();
         }
 
-        $options = array();
-        if($this->editFormClass == $this->newFormClass) $options['formUsage']='edit';
-        $form = $this->createForm($this->editFormClass, $entity, $options);
 
-
+        $form = $this->createEditForm($entity);
         $form->handleRequest($request);
+
+        $this->checkAccess('edit', [$form->getData()] );
 
 
         $isValid = $this->onEditValidate($form)!==false;
         if($form->isSubmitted() && $form->isValid() && $isValid){
-            if($this->onPreEditPersist($entity)!==false) {
+            //dump($form['user']->getConfig()->getOptions());die();
+            if($this->onPreEdit($entity)!==false) {
                 $em = $this->get('doctrine')->getManager();
                 $em->flush();
-                $this->onPostEditPersist($entity);
+                $this->onPostEdit($entity);
             }
-            return $this->redirect(sprintf('/%s/list',$this->viewBaseDir));
+
+            return $this->redirect($form['_back_uri']->getData());
         }
-        return $this->render(sprintf('/%s/edit.html.twig',$this->viewBaseDir), array('form'=>$form->createView()));
+        return $this->getResponse( 'form', array('form'=>$form->createView()));
     }
 
     /**
@@ -135,76 +189,161 @@ trait EntityControllerTrait {
     public function removeAction(Request $request, $id){
 
         $repository = $this->get('doctrine')->getRepository($this->entityClass);
-        $entity = $repository->find($id);
-        if(!$entity){
-            throw $this->createNotFoundException();
-        }
-        $form = $this->createForm(RemoveFormType::class,$entity);
+        $em = $this->get('doctrine')->getManager();
+
+        $ids = is_integer($id) ? [$id] : mb_split('&',$id);
+        $entitiesToRemove = $em->createQuery(sprintf('select e from %s e where e.id in (%s)',$this->entityClass, join(',',$ids)))
+                               ->getResult();
+        $groupAction = count($ids) > 1;
+
+        $form = $this->createRemoveForm();
         $form->handleRequest($request);
-        if($form->get('remove')->isClicked()) return $this->redirect(sprintf('/%s/list',$this->viewBaseDir));
+
+       $this->checkAccess('remove', $entitiesToRemove);
+
         $isValid = $this->onRemoveValidate($form)!==false;
+
         if($form->isSubmitted() && $isValid) {
 
-            if(($redirect = $this->onPreRemove($entity))!==false) {
-                $em = $this->get('doctrine')->getManager();
-                $em->remove($entity);
-                $em->flush();
-                $this->onPostRemove($entity);
+            foreach($entitiesToRemove as $key=>$entity){
+                if ($this->onPreRemove($entity) !== false) {
+                    $em->remove($entity);
+                }
+                else{
+                    unset($entitiesToRemove[$key]);
+                }
             }
-            return $this->redirect($redirect ?: sprintf('/%s/list',$this->viewBaseDir));
+            $em->flush();
+
+            foreach($entitiesToRemove as $entity){
+               $this->onPostRemove($entity);
+            }
+            return $this->redirect($form['_back_uri']->getData());
         }
-        return $this->render(sprintf('/%s/remove.html.twig',$this->viewBaseDir),array(
+        $title = $groupAction
+            ? $this->get('translator')->trans(sprintf('remove-group.%s.confirmation', $this->entityName),[],'forms')
+            : $this->get('translator')->trans(sprintf('remove.%s.confirmation.%%item%%.%%id%%', $this->entityName), [
+                '%item%'=>$entitiesToRemove[0]->__toString(),
+                '%id%'=>$entitiesToRemove[0]->getId()], 'forms');
+        return $this->getResponse( 'form', array(
             'form'=>$form->createView(),
-            'entityName'=>$entity->getName()
+            'title'=>$title,
+            'entities'=>$entitiesToRemove
         ));
 
     }
+
+
+    protected function getResponse($viewName, array  $viewVars = []){
+
+        $request = $this->get('request_stack')->getCurrentRequest();
+
+        $format = $request->getRequestFormat();
+
+        $view = sprintf('%s/%s.%s.twig',$this->viewBaseDir, $viewName, $format);
+        if(!$this->get('templating')->exists($view)){
+            $view = null;
+        }
+
+        if($view){
+            $this->amendViewVariables($view, $viewVars);
+            return $this->render($view, $viewVars);
+        }
+
+        return new Response('no representation', Response::HTTP_NOT_ACCEPTABLE);
+    }
+
+    /**
+     * @param string[] $data phrases to filter entities
+     * @param array $options
+     * @return mixed
+     */
+    private function createFilterForm(array $data=[], $options=[]){
+        $options['method'] = 'get';
+        $options['target_entity'] = $this->entityClass;
+        return  $this->get('form.factory')->createNamed('filter', EntityFilterType::class, $data, $options);
+
+    }
+    protected function createNewForm($entity=null, array $options=[]){
+        return $this->createEntityForm($this->formClass, $entity, 'new', $options);
+    }
+    protected function createEditForm($entity=null, $options=[]){
+        return $this->createEntityForm($this->formClass, $entity, 'edit', $options);
+    }
+    protected function createRemoveForm($entity=null, $options=[]){
+        return $this->createEntityForm($this->formClass, $entity, 'remove', $options);
+    }
+    protected function createEntityForm($formClass, $entity, $usage, array $options = []){
+        $httpRequest = $this->get('request_stack')->getCurrentRequest();
+
+        $back_uri = $httpRequest->query->get('back_uri') ?: '';
+        $back_uri = $back_uri ?: $httpRequest->headers->get('referer');
+
+        if(empty($back_uri) or parse_url($back_uri)['host']!=$httpRequest->getHost()){
+            $back_uri = sprintf('/%s/list',$this->entityName);
+        }
+
+        $options['form_usage'] = $usage;
+        $options['cancel_uri'] = $back_uri;
+        $form =  $this->createForm($formClass, $entity, $options);
+        $form['_back_uri']->setData($back_uri);
+        return $form;
+    }
+
+
+    protected function amendViewVariables($viewName, array &$variables){
+    }
+
+    protected function checkAccess($action, array $entities){
+        if(!$this->canAct($action, $entities)){
+            throw new AccessDeniedException();
+        }
+    }
+    protected function canAct($action, array $entities){
+        return true;
+    }
+
 
 
     /**
      * @param QueryBuilder $builder use builder to change query statement
      */
     protected function onPreQueryList(QueryBuilder $builder){
-
     }
     /**
-     * @param $result NamedEntityInterface[] Queried entities
-     * @return array[] Array of entities those should be used as querying result
+     * @param $result BaseEntity[] Queried entities
      */
-    protected function onPostQueryList($result){
-        return false;
+    protected function onPostQueryList(array &$entities){
     }
     /**
-     * @param NamedEntityInterface $entity Entity to be persisted
+     * @param BaseEntity $entity Entity to be persisted
      * @return bool return false to cancel persisting
      */
-    protected function onPreNewPersist(NamedEntityInterface $entity){}
+    protected function onPreAdd( $entity){}
     /**
-     * @param NamedEntityInterface $entity Entity to be persisted
+     * @param BaseEntity $entity Entity to be persisted
      */
-    protected function onPostNewPersist(NamedEntityInterface $entity){}
+    protected function onPostAdd( $entity){}
     /**
-     * @param NamedEntityInterface $entity Entity to be persisted
+     * @param BaseEntity $entity Entity to be persisted
      * @return bool return false to cancel persisting
      */
-    protected function onPreEditPersist(NamedEntityInterface $entity){}
+    protected function onPreEdit( $entity){}
     /**
-     * @param NamedEntityInterface $entity Entity to be persisted
+     * @param BaseEntity $entity Entity to be persisted
      */
-    protected function onPostEditPersist(NamedEntityInterface $entity){}
+    protected function onPostEdit( $entity){}
 
     /**
-     * @param NamedEntityInterface $entity Entity to be removed
+     * @param BaseEntity $entity Entity to be removed
      * @return bool return false to cancel removing
      */
-    protected function onPreRemove(NamedEntityInterface $entity){}
+    protected function onPreRemove( $entity){}
 
     /**
-     * @param NamedEntityInterface $entity
-     * @return string  uri to redirect after removing
-     *
+     * @param BaseEntity $entity
      */
-    protected function onPostRemove(NamedEntityInterface $entity){}
+    protected function onPostRemove( $entity){}
 
     /**
      * @param  FormInterface $form Validated form

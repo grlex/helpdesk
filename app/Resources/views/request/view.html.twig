@@ -1,5 +1,113 @@
-{% extends 'request/base.html.twig' %}
+{% extends 'main_template.html.twig' %}
 
+{% from 'table-panel-macro.html.twig' import actionButton %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $('.request-view').on('click', 'a.action[data-toggle=modal]', function (event) {
+            event.preventDefault();
+            var uri = this.dataset.uri;
+            uri+="?form-only&back-uri="+encodeURIComponent(window.location.href);
+
+            tablePanel.loadModalContent(uri, '#request-step-modal');
+        });
+    </script>
+{% endblock  %}
 {% block content %}
-    {% include 'FOSCommentBundle:Thread:async.html.twig' with {'id': 'foo'} %}
+    <div class="row request-view">
+        <div class="request-info col-sm-7 col-lg-8">
+            <div class="row">
+                <div></div>
+                <div class="col-sm-offset-4 col-sm-8"><h3>{{ request.name }}</h3></div>
+            </div>
+            <div class="row actions">
+                <div class="col-sm-4">{{ 'items.actions'|trans }}</div>
+                <div class="col-sm-8">
+                    {% include 'request/status_actions.twig' %}
+                    {{ restore_context() }}
+                    <ul class="list-inline actions-list" >
+                        {% for key,action in status_actions if is_granted(key,request) %}
+                            <li>{{ actionButton(key, action, request, 'request-step-modal') }}</li>
+                        {% else %}
+                            <li>{{ 'items.no-available-actions'|trans }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.description'|trans({},'entities') }}</div>
+                <div class="col-sm-8 mfp-gallery">{{ request.description|raw }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.status'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.textStatus }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.priority'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.textPriority }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.active'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.active }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.files'|trans({},'entities') }}</div>
+                <div class="col-sm-8">
+                    <ul class="list-unstyled">
+                        {% for file in request.files %}
+                            <li><a href="/file/download/{{ file.filename  }}">{{ file.originalName }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.category'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.category }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.user'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.user }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">{{ 'request.executor'|trans({},'entities') }}</div>
+                <div class="col-sm-8">{{ request.executor }}</div>
+            </div>
+        </div>
+        <div id="request-history" class="col-sm-5 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">{{ 'request.lifecycle_steps'|trans({},'entities') }}</div>
+                <div class="panel-body">
+                    {% for step in request.lifecycleSteps %}
+                        <div class="step">
+                            <div>
+                                <span class="datetime pull-left">{{ step.datetime|date_trans(app.request.locale) }}</span>
+                                <span class="user pull-right">{{ step.user }}</span>
+                                <div class="clearfix"></div>
+                            </div>
+                            <p> {{ request.statuses[step.requestStatus] }} </p>
+                            <div class="mfp-gallery">{{ step.comment ? step.comment.rawBody|raw : '' }}</div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+                <div class="panel-footer">
+                </div>
+            </div>
+            <div id="request-step-modal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Modal title</h4>
+                        </div>
+                        <div class="modal-body">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'FOSCommentBundle:Thread:async.html.twig' with {'id': request.thread.id, 'thread_holder': request} %}
 {% endblock content %}

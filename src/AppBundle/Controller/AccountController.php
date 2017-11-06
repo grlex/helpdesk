@@ -52,7 +52,7 @@ class AccountController extends Controller {
 
         $form = $this->createForm(LoginType::class, ['login'=>$login], array('action'=>'/account/login'));
 
-        $form->addError(new FormError($this->get('translator')->trans('form.login.account-removed',[],'forms')));
+        $form->addError(new FormError($this->get('translator')->trans('account-removed',[],'forms')));
 
         return $this->render('account/login.html.twig', array(
             'form'=>$form->createView(),

@@ -1,0 +1,62 @@
+Bad credentials.: Login or password is invalid.
+cancel: Cancel
+save: Save
+add: Add
+remove: Remove
+do: Do
+enter: Enter
+login: Login
+password: Password
+remember_me: Remember me
+account-removed: This account is deleted
+
+
+remove.title: Removing
+remove.user.confirmation.%item%.%id%: Are you sure to remove the user  "%item%" [%id%]
+remove.department.confirmation.%item%.%id%: Are you sure to remove the department  "%item%" [%id%]
+remove.active.confirmation.%item%.%id%: Are you sure to remove the cabinet  "%item%" [%id%]
+remove.category.confirmation.%item%.%id%: Are you sure to remove the category  "%item%" [%id%]
+remove.request.confirmation.%item%.%id%: Are you sure to remove the request "%item%" [%id%]
+
+remove-group.user.confirmation: Are you sure to remove all selected users
+remove-group.department.confirmation: Are you sure to remove all selected departments
+remove-group.active.confirmation: Are you sure to remove all selected cabinets
+remove-group.category.confirmation: Are you sure to remove all selected categories
+remove-group.request.confirmation: Are you sure to remove all selected requests
+
+
+reopen.request.title: Request reopening
+reopen.request.submit: Reopen
+reopen.request.confirmation.%item%.%id%: Are you sure to reopen  "%item%" [%id%]
+reopen-group.request.confirmation: Are you sure to reopen all selected requests
+
+reject.request.title: Request rejecting
+reject.request.submit: Reject
+reject.request.confirmation.%item%.%id%: Are you sure to reject  "%item%" [%id%]
+reject-group.request.confirmation: Are you sure to reject all selected requests
+
+distribute.request.title: Request distributing
+distribute.request.submit: Distribute
+distribute.request.confirmation.%item%.%id%: Are you sure to distribute  "%item%" [%id%]
+distribute-group.request.confirmation: Are you sure to distribute all selected requests
+
+process.request.title: Request processing
+process.request.submit: Process
+process.request.confirmation.%item%.%id%: Are you sure to process  "%item%" [%id%]
+process-group.request.confirmation: Are you sure to process all selected requests
+
+accept.request.title: Request accepting
+accept.request.submit: Submit
+accept.request.confirmation.%item%.%id%: Are you sure to accept  "%item%" [%id%]
+accept-group.request.confirmation: Are you sure to accept all selected requests
+
+discard.request.title: Request discarding
+discard.request.submit: Discrad
+discard.request.confirmation.%item%.%id%: Are you sure to discard  "%item%" [%id%]
+discard-group.request.confirmation: Are you sure to discard all selected requests
+
+close.request.title: Request closing
+close.request.submit: Close
+close.request.confirmation.%item%.%id%: Are you sure to close  "%item%" [%id%]
+close-group.request.confirmation: Are you sure to close all selected requests
+

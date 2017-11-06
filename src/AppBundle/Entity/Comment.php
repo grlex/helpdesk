@@ -7,6 +7,8 @@
  */
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\CommentBundle\Entity\Thread;
 use FOS\CommentBundle\Model\RawCommentInterface;
@@ -34,14 +36,14 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
     protected $id;
     /**
      * @var User
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
      */
     protected $author;
 
     /**
      * @var BaseThread
-     * @ORM\ManyToOne(targetEntity="Thread")
+     * @ORM\ManyToOne(targetEntity="Thread", inversedBy="comments")
      */
     protected $thread;
 
@@ -51,20 +53,16 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
      */
     protected $rawBody;
 
-    /**
-     * @var File[] Файлы, прикрепленные к заявке
-     * @ORM\ManyToMany(targetEntity="File", orphanRemoval=true)
-     * @ORM\JoinTable(name="comment_file",
-     *      joinColumns = { @ORM\JoinColumn(name="comment_id", referencedColumnName="id", onDelete="CASCADE") },
-     *      inverseJoinColumns = { @ORM\JoinColumn(name="file_id", referencedColumnName="id", onDelete="CASCADE") } )
-     */
-    protected $files;
 
-
-    public function __toString()
+    /*public function __toString()
     {
         return $this->getBody();
+    }*/
+
+    public function getAuthorName(){
+        return $this->author->getName();
     }
+
 
 
     // ===================================== ===================
@@ -78,6 +76,7 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
     public function __construct()
     {
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
+        parent::__construct();
     }
 
     /**
@@ -117,7 +116,7 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
     /**
      * Set author
      *
-     * @param UserInterfacer $author
+     * @param UserInterface $author
      *
      * @return Comment
      */
@@ -131,7 +130,7 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
     /**
      * Get author
      *
-     * @return \AppBundle\Entity\User
+     * @return UserInterface
      */
     public function getAuthor()
     {
@@ -162,37 +161,4 @@ class Comment extends BaseComment implements SignedCommentInterface, RawCommentI
         return $this->thread;
     }
 
-    /**
-     * Add file
-     *
-     * @param \AppBundle\Entity\File $file
-     *
-     * @return Comment
-     */
-    public function addFile(\AppBundle\Entity\File $file)
-    {
-        $this->files[] = $file;
-
-        return $this;
-    }
-
-    /**
-     * Remove file
-     *
-     * @param \AppBundle\Entity\File $file
-     */
-    public function removeFile(\AppBundle\Entity\File $file)
-    {
-        $this->files->removeElement($file);
-    }
-
-    /**
-     * Get files
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getFiles()
-    {
-        return $this->files;
-    }
 }

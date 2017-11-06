@@ -9,43 +9,107 @@
             <link rel="stylesheet" type="text/css" href="{{ asset('/css/bootstrap.min.css') }}"/>
             <link rel="stylesheet" type="text/css" href="{{ asset('/css/table-panel.css') }}"/>
             <link rel="stylesheet" type="text/css" href="{{ asset('/css/chosen.min.css') }}"/>
-            <style>
-                html{
-                    height: 100%;
-                    width: 100%;
-                }
-                body{
-                    min-height: 100%;
-                    min-width: 320px;
-                    position: relative;
-                    background: #F5F5F5;
-                    #font: 14px/1.5 sans-serif;
-                }
-
-            </style>
+            <link type="text/css" rel="stylesheet" href="{{ asset('css/comments.css?i') }}"/>
+            <link type="text/css" rel="stylesheet" href="{{ asset('js/trumbowyg/ui/trumbowyg.min.css') }}"/>
+            <link type="text/css" rel="stylesheet" href="{{ asset('css/file_collection_theme.css') }}"/>
+            <link type="text/css" rel="stylesheet" href="{{ asset('css/magnific-popup.css') }}"/>
+            <link type="text/css" rel="stylesheet" href="{{ asset('css/styles.css') }}"/>
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
     </head>
     <body>
-        {#
-        {% spaceless %}
-            <div class="vertical-center-block-wrapper">
-                <div class="vertical-center-block">
-                    <div class="container">
-                        {% block body %}
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-        {% endspaceless %}
-        #}
         {% block body %}
         {% endblock %}
+
         {% block javascripts %}
             <script src="{{ asset('js/jquery-2.2.4.min.js') }}"></script>
             <script src="{{ asset('js/bootstrap.min.js') }}"></script>
             <script src="{{ asset('js/chosen.jquery.min.js') }}"></script>
+            <script src="{{ asset('js/trumbowyg/trumbowyg.min.js') }}"></script>
+            <script src="{{ asset('js/trumbowyg/langs/ru.min.js') }}"></script>
+            <script src="{{ asset('js/trumbowyg/plugins/upload/trumbowyg.upload.min.js') }}"></script>
+            <script src="{{ asset('js/file_collection_theme.js') }}"></script>
+            <script src="{{ asset('js/jquery.magnific-popup.min.js') }}"></script>
+            <script src="{{ asset('js/table-panel.js') }}"></script>
+            <script>
+                var trumbowygConfig = {
+                    svgPath: '/js/trumbowyg/ui/icons.svg',
+                    btns: [
+                        ['viewHTML'],
+                        ['undo', 'redo'], // Only supported in Blink browsers
+                        ['formatting'],
+                        ['strong', 'em', 'underline'],
+                        ['superscript', 'subscript'],
+                        ['link'],
+                        ['image'],
+                        ['justify'],
+                        ['unorderedList', 'orderedList'],
+                        ['horizontalRule'],
+                        ['removeformat'],
+                        ['fullscreen']
+                    ],
+                    btnsDef: {
+                        justify: {
+                            dropdown: ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+                            ico: 'justify-left',
+                            hasIcon: true
+                        },
+                        image: {
+                            dropdown: ['insertImage', 'upload'],
+                            ico: 'insertImage'
+                        },
+                        insertImage:{
+                            title: jQuery.trumbowyg.langs['{{ app.request.locale|slice(0,2) }}'].imageByLink
+                        }
+                    },
+                    autogrow: true,
+                    lang: '{{ app.request.locale|slice(0,2) }}',
+                    placeholder: "{{ 'comment_placeholder'|trans }}",
+                    resetCss: true,
+                    plugins: {
+                        upload: {
+                            serverPath: '/file/upload',
+                            fileFieldName: 'file',
+                            data: [{name: 'group', value: 'comment'}],
+                            urlPropertyName: 'data.link',
+                            success: function (data, trumbowyg, modal, values) {
+
+                                var t = trumbowyg;
+                                var v = {};
+                                t.saveRange();
+                                v.src = data.data.baseUrl+'small.'+data.data.baseName;
+                                v.originalSrc = data.data.baseUrl+'big.'+data.data.baseName;
+                                v.alt = t.getRangeText();
+
+                                t.execCmd('insertImage', v.src);
+                                var image = $('img[src="' + v.src + '"]:not([alt])', t.$box);
+                                image.attr('alt', v.alt).attr('data-file-id', data.data.id).data('original', v.originalSrc);
+
+
+                                t.closeModal();
+                                t.syncTextarea();
+
+                            }
+                        }
+                    }
+                };
+
+
+                $.extend(true, $.magnificPopup.defaults, {
+                    tClose: '{{ "close"|trans({},"magnific_popup") }}', // Alt text on close button
+                    tLoading: '{{ "loading"|trans({},"magnific_popup") }}', // Text that is displayed during loading. Can contain %curr% and %total% keys
+                    gallery: {
+                        tPrev: '{{ "previous"|trans({},"magnific_popup") }}', // Alt text on left arrow
+                        tNext: '{{ "next"|trans({},"magnific_popup") }}', // Alt text on right arrow
+                        tCounter: '{{ "%curr% of %total%"|trans({},"magnific_popup") }}' // Markup for "1 of 7" counter
+                    },
+                    image: {
+                        tError: '<a href="%url%">The image</a> could not be loaded.' // Error message when image could not be loaded
+                    }
+                });
+            </script>
+            <script src="{{ asset('js/scripts.js') }}"></script>
         {% endblock %}
     </body>
 </html>
