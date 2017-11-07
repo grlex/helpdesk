@@ -8,33 +8,28 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\User;
-use Doctrine\ORM\EntityManager;
+use AppBundle\Entity\Role;
+
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class UserController extends CommonEntityController {
 
+    public function __construct(RequestStack $requestStack, TranslatorInterface $translator){
+        parent::__construct($requestStack);
+
+        Role::translateTextRoles($translator);
+
+    }
 
     protected function onPreQueryList(QueryBuilder $builder){
         $builder->andWhere('e.removed != 1');
     }
 
-    protected function onPostQueryList(array &$users){
-       foreach($users as &$user){
-            $strRoles = [];
-            foreach($user->getRoles() as $role) {
-                $strRoles[] = $this->get('translator')->trans($role->getRole());
-            }
-           if($user == $this->getUser()) $user = clone $user; // deep = false
-
-           $user->setTextRoles($strRoles);
-        }
-    }
 
     protected function onPreAdd( $user)
     {

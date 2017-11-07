@@ -10,8 +10,9 @@ namespace AppBundle\Form;
 
 
 use AppBundle\Entity\BaseEntity;
-use AppBundle\Form\Transformer\FileCollectionTransformer;
+use AppBundle\Entity\Role;
 use AppBundle\Form\Transformer\FileTransformer;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Types\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -25,10 +26,15 @@ use AppBundle\Entity\Category;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Comment;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class RequestType extends BaseEntityType{
 
-
+    protected $doctrine;
+    public function __construct(Registry $doctrine, TranslatorInterface $translator){
+        $this->doctrine = $doctrine;
+        parent::__construct($translator);
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -85,8 +91,12 @@ class RequestType extends BaseEntityType{
         ));
 
         $this->add('executor', EntityType::class, array(
+            'required'=>false,
             'label'=>'request.executor',
             'class'=>User::class,
+            'query_builder'=> $this->doctrine->getRepository('AppBundle:User')
+                ->createQueryBuilder('u')
+                ->where(sprintf("BIT_AND(u.rolesMask, %s) <> 0", Role::getMaskBits()[Role::ROLE_EXECUTOR]))
         ));
 
         $this->addButtons();

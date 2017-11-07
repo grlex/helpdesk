@@ -12,7 +12,6 @@ namespace AppBundle\EntityListFilter\FilterBuilder;
 
 
 use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\Query\Expr\Comparison;
 
 class DefaultFilterBuilder extends BaseFilterBuilder {
 
@@ -24,7 +23,7 @@ class DefaultFilterBuilder extends BaseFilterBuilder {
 
     public function getFieldFilter($field, $filterData, \Doctrine\ORM\Mapping\ClassMetadata $entityMetadata)
     {
-        $filterText = $this->getFilterText($filterData, $field);
+        $filterText = $this->getFilterPart($filterData, $field);
         if($filterText===false) return [];
 
         $filterText = $filterData[$field];
@@ -44,11 +43,8 @@ class DefaultFilterBuilder extends BaseFilterBuilder {
     public function getAssociationFilter($association, $filterData, \Doctrine\ORM\Mapping\ClassMetadata $entityMetadata)
     {
 
-        $filterText = $this->getFilterText($filterData, $association);
+        $filterText = $this->getFilterPart($filterData, $association);
         if($filterText===false) return [];
-
-        $filterText = $filterData[$association];
-        $filterText = addslashes($filterText);
 
         $mapping = $entityMetadata->getAssociationMapping($association);
 

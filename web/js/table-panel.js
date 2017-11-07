@@ -21,14 +21,16 @@ function tablePanel($) {
             .each(function(index,elem){
                 actions.push(elem.dataset.action);
             });
-        tds.slice(1)
-            .next('.actions')
-            .find('a.action')
-            .each(function(index,elem){
-                var index = actions.indexOf(elem.dataset.action);
-                if(index>=0) return;
-                delete actions[index];
+
+        tds.slice(1).each(function(index, td){
+            var entryActions = [];
+            $(td).next('.actions').find('a.action').each(function(index,elem){
+                entryActions.push(elem.dataset.action);
             });
+            actions = actions.filter(function(action){
+                return entryActions.includes(action);
+            });
+        });
 
 
 
@@ -85,7 +87,6 @@ function tablePanel($) {
         uriParams = '?' + uriParams.join('&');
         uriParams = encodeURI(uriParams);
 
-        console.log(uriParams);
 
         var uri = window.location.pathname + uriParams;
 
@@ -198,9 +199,20 @@ function tablePanel($) {
             else  $(".table-panel .panel-body input.selector").prop('checked', false);
             updateGroupActionsMenuAvailability();
         });
-
-        $(".table-panel").on('click', '.panel-body input.selector-single' , function () {
+        var lastClickedSingleSelector = null;
+        $(".table-panel").on('click', '.panel-body input.selector-single' , function (event) {
             $(".table-panel .panel-body input.selector-all").prop('checked', false);
+            if(lastClickedSingleSelector && event.shiftKey){
+                var selectors = $('.table-panel .panel-body input.selector-single');
+                var from = selectors.index(lastClickedSingleSelector);
+                var to = selectors.index(this);
+                if(from > to) { var tmp = from; from = to; to = tmp; }
+                for(i = from+1; i < to ; i++){
+                    var selector = selectors.get(i);
+                    selector.checked = !selector.checked;
+                }
+            }
+            lastClickedSingleSelector = this;
             updateGroupActionsMenuAvailability();
         });
 

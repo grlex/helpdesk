@@ -7,7 +7,6 @@
  */
 
 namespace AppBundle\Entity;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  */
 class User extends BaseEntity implements UserInterface {
     public static function getFields(){
-        return ['id', 'name', 'login', 'password', 'roles', 'department', 'position'];
+        return ['id', 'name', 'login', 'password', 'rolesMask', 'roles', 'department', 'position'];
     }
 
     /**
@@ -68,14 +67,10 @@ class User extends BaseEntity implements UserInterface {
     private $department;
 
     /**
-     * @var Role[] Роль пользователя в компании
-     * @ORM\ManyToMany(targetEntity="Role")
-     * ORM\JoinTable("user_role",
-     *      joinColumns = {@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns = { @ORM\JoinColumn(name="role_id", referencedColumnName="id", onDelete="CASCADE")}
-     * )
+     * @var integer Роль пользователя
+     * @ORM\Column(type="smallint")
      */
-    private $roles;
+    private $rolesMask;
 
 
     /**
@@ -85,14 +80,11 @@ class User extends BaseEntity implements UserInterface {
     private $removed=0;
 
 
-    public function __construct(){
-        $this->roles = new ArrayCollection();
-    }
 
-    public function hasRole($role){
-        $roles = is_array($role) ? $role : [$role];
-
-        return $this->roles->exists(function($index, $roleEntity) use ($roles){ return in_array($roleEntity->getRole(), $roles);});
+    public function hasRole($roleId){
+        $masks = Role::getMaskBits();
+        $roleMask = array_key_exists($roleId, $masks) ? $masks[$roleId] : 0;
+        return (bool)($this->rolesMask & $roleMask);
     }
 
     /* ===================== =========== */
@@ -130,6 +122,39 @@ class User extends BaseEntity implements UserInterface {
         // TODO: Implement eraseCredentials() method.
     }
 
+    public function getRoles(){
+        $roles = [];
+        foreach(Role::getMaskBits() as $id => $bit){
+            if($this->rolesMask & $bit) $roles[] = new Role($id);
+        }
+        return $roles;
+    }
+
+    /*public function getTextRoles(){
+        $roles = Role::getRoles();
+        foreach(Role::getMaskBits() as $id => $bit){
+            if($this->rolesMask & $bit) continue;
+            unset($roles[$id]);
+        }
+        return $roles;
+    }*/
+
+    public function addRole(\AppBundle\Entity\Role $role)
+    {
+        $this->rolesMask |= $role->getMaskBit();
+        return $this;
+    }
+
+
+    public function removeRole(\AppBundle\Entity\Role $role)
+    {
+        $this->rolesMask ^= ~$role->getMaskBit();
+        return $this;
+    }
+
+
+
+
     public function __toString(){
         return $this->getName();
     }
@@ -138,13 +163,7 @@ class User extends BaseEntity implements UserInterface {
         return ['name', 'login'];
     }
 
-    /**
-     * Only for set text role names for displaying in views
-     * @param string[] $roles
-     */
-    public function setTextRoles($roles){
-        $this->roles = $roles;
-    }
+
 
     /* ----------------------------------------- */
 
@@ -245,6 +264,16 @@ class User extends BaseEntity implements UserInterface {
     }
 
     /**
+     * Get removed
+     *
+     * @return boolean
+     */
+    public function getRemoved()
+    {
+        return $this->removed;
+    }
+
+    /**
      * Set removed
      *
      * @param boolean $removed
@@ -291,43 +320,26 @@ class User extends BaseEntity implements UserInterface {
     {
         return $this->department;
     }
-
     /**
-     * Add role
+     * Set rolesMask
      *
-     * @param \AppBundle\Entity\Role $role
+     * @param int $rolesMask
      *
      * @return User
      */
-    public function addRole(\AppBundle\Entity\Role $role)
+    public function setRolesMask($rolesMask = null)
     {
-        $this->roles->add($role);
-
+        $this->rolesMask = $rolesMask;
         return $this;
     }
 
     /**
-     * Remove role
+     * Get rolesMask
      *
-     * @param \AppBundle\Entity\Role $role
+     * @return int
      */
-    public function removeRole(\AppBundle\Entity\Role $role)
+    public function getRolesMask()
     {
-        $this->roles->removeElement($role);
-    }
-
-
-    public function getRoles(){
-        return is_array($this->roles) ? $this->roles : $this->roles->toArray();
-    }
-
-    /**
-     * Get removed
-     *
-     * @return boolean
-     */
-    public function getRemoved()
-    {
-        return $this->removed;
+        return $this->rolesMask;
     }
 }

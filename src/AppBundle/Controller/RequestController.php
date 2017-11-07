@@ -12,40 +12,26 @@ use AppBundle\Entity\Comment;
 use AppBundle\Entity\LifecycleStep;
 use AppBundle\Entity\Thread;
 use AppBundle\Form\LifecycleStepType;
-use AppBundle\Form\RequestType;
 use AppBundle\Service\HtmlImagesExtractor;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Entity\Request;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class RequestController extends CommonEntityController {
-    //use EntityControllerTrait;
 
     private $imagesExtractor;
     private $onEditRequestStatusChanged = false;
     public function __construct(RequestStack $requestStack, TranslatorInterface $translator, HtmlImagesExtractor $imagesExtractor){
         parent::__construct($requestStack);
 
-        $statuses = &Request::getStatuses();
-        foreach($statuses as &$textStatus)
-            $textStatus = $translator->trans('request.status.'.$textStatus,[],'entities');
-        $priorities = &Request::getPriorities();
-        foreach($priorities as &$textPriority)
-            $textPriority = $translator->trans('request.priority.'.$textPriority,[],'entities');
+        Request::translateTextPriorities($translator);
+        Request::translateTextStatuses($translator);
 
         $this->imagesExtractor = $imagesExtractor;
-
-        //$this->initialize(Request::class);
 
     }
 
@@ -172,7 +158,7 @@ class RequestController extends CommonEntityController {
      * @Route("/request/view/{id}")
      * @Method({"GET"})
      */
-    public function viewAction($id, HttpRequest $request){
+    public function viewAction($id){
         $request = $this->get('doctrine')->getRepository('AppBundle:Request')->find($id);
 
         $this->checkAccess('view', [$request]);
@@ -235,23 +221,14 @@ class RequestController extends CommonEntityController {
                 $step = new LifecycleStep();
                 $step->setUser($this->getUser());
                 $step->setRequestStatus($status);
-                //$step->setRequest($request); in Request::addLifecycleStep()
                 $step->setDatetime(new \DateTime('now'));
 
                 if(!empty($data['comment'])) {
                     $comment = new Comment();
-                    /*$commentBody = $this->get('translator')->trans('request.status.changed_to_%status%', ['%status%' => Request::getStatuses()[$status]], 'entities');
-                    $commentBody = sprintf("<p>%s%s</p><br/>%s",
-                        $commentBody,
-                        empty($data['executor']) ? '' : sprintf('<br/>%s: %s', $this->get('translator')->trans('request.executor', [], 'entities'), $data['executor']),
-                        $data['comment']//empty($data['comment']) ? '' : $data['comment']
-                    );*/
                     $comment->setBody($data['comment']);
                     $comment->setAuthor($this->getUser());
                     $comment->setThread($request->getThread());
-                    //$comment->setBody($this->get('custom_html_purifier')->parse($data['comment']));
                     $this->get('fos_comment.custorm_manager.comment')->saveComment($comment);
-                    //$em->persist($request->getThread());
                     $step->setComment($comment);
                 }
 
@@ -259,7 +236,6 @@ class RequestController extends CommonEntityController {
                     $request->setExecutor($data['executor']);
                 }
                 $request->addLifecycleStep($step);
-                //$em->persist($step);
                 $em->persist($request);
             }
             $em->flush();
@@ -310,8 +286,9 @@ class RequestController extends CommonEntityController {
      */
     public function distributeRequestListAction(HttpRequest $httpRequest){
         $query = $httpRequest->query->all();
-
-        $query['filter']['status'] = sprintf('%s|%s', Request::STATUS_OPENED, Request::STATUS_DISCARDED);
+        $query['filter']['status'] = array();
+        $query['filter']['status'][] = Request::STATUS_OPENED;
+        $query['filter']['status'][] = Request::STATUS_DISCARDED;
 
         return $this->forward('AppBundle:Request:list', [], $query);
     }
@@ -322,8 +299,9 @@ class RequestController extends CommonEntityController {
      */
     public function closeRequestListAction(HttpRequest $httpRequest){
         $query = $httpRequest->query->all();
-
-        $query['filter']['status'] = sprintf('%s|%s', Request::STATUS_ACCEPTED, Request::STATUS_DISCARDED);
+        $query['filter']['status'] = array();
+        $query['filter']['status'][] = Request::STATUS_ACCEPTED;
+        $query['filter']['status'][] = Request::STATUS_DISCARDED;
 
         return $this->forward('AppBundle:Request:list', [], $query);
     }

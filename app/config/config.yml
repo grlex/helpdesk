@@ -124,7 +124,7 @@ exercise_html_purifier:
         HTML.AllowedAttributes: [ '*.style',
                                   '*.title',
                                   'a.href', 'a.class',
-                                  'img.src', 'img.alt',  'img.data-file-id' ]
+                                  'img.src', 'img.alt' ]
 
 
 

@@ -23,8 +23,9 @@ body > main{
 
 textarea { resize: vertical; }
 
+
 .entity-form .title,
-.entity-form .items-list{
+.entity-form .items-listD{
     text-align: center;
 }
 

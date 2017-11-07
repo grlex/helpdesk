@@ -62,9 +62,11 @@ class EntityListFilter  {
                 break;
         }
         if(!empty($filter['expressions'])){
+
             $expr = count($filter['expressions'])==1 ? $filter['expressions'][0] : new $combiner($filter['expressions']);
             $queryBuilder->andWhere($expr);
         }
+
 
         foreach($filter['joins'] as $alias => $join) $queryBuilder->leftJoin($join, $alias);
 

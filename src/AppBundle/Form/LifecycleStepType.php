@@ -9,10 +9,10 @@
 namespace AppBundle\Form;
 
 
-use AppBundle\Entity\Comment;
-use AppBundle\Entity\LifecycleStep;
+
+
+use AppBundle\Entity\Role;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -20,7 +20,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use AppBundle\Entity\Request;
 use AppBundle\Entity\User;
 
 class LifecycleStepType extends BaseEntityType {
@@ -41,8 +40,7 @@ class LifecycleStepType extends BaseEntityType {
             'multiple'=>false,
             'query_builder'=> $this->doctrine->getRepository('AppBundle:User')
                 ->createQueryBuilder('u')
-                ->join('u.roles','roles')
-                ->where("roles.role='ROLE_EXECUTOR'")
+                ->where(sprintf("BIT_AND(u.rolesMask, %s) <> 0", Role::getMaskBits()[Role::ROLE_EXECUTOR]))
         ));
         $this->add('comment', Type\TextareaType::class, array(
             'label'=>'lifecycleStep.comment',

@@ -12,16 +12,13 @@ namespace AppBundle\Controller;
 use AppBundle\FileManager\FileManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Filesystem\Filesystem;
+
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller {
 
@@ -42,7 +39,8 @@ class FileController extends Controller {
         $file = $request->files->count() ? $request->files->get('file') : null;
         if (is_null($file)) {
             return new JsonResponse(array(
-                'success' => false
+                'success' => false,
+                'no-files' => true
             ));
         }
 

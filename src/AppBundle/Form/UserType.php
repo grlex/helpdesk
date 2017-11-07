@@ -10,20 +10,17 @@ namespace AppBundle\Form;
 
 
 use AppBundle\Entity\Department;
+use AppBundle\Entity\Role;
 use AppBundle\Entity\User;
-use Proxies\__CG__\AppBundle\Entity\Role;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Translation\Translator;
-use Symfony\Component\Validator\Constraints\Expression;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
+
 
 class UserType extends BaseEntityType {
 
@@ -41,13 +38,26 @@ class UserType extends BaseEntityType {
             'always_empty'=>false
         ));
 
-        $this->add('roles',EntityType::class, array(
+        $this->add('rolesMask',ChoiceType::class, array(
             'label'=>'user.roles',
-            'class'=>Role::class,
-            'choice_label'=>'role',
-            'choice_translation_domain'=>'messages',
+            'choices'=> array_combine(Role::getRoles(),Role::getMaskBits()),
             'multiple'=>true,
-            'attr'=>array('data-placeholder'=>$this->translator->trans('user.choose-roles',[],'forms'))
+            'attr'=>array('data-placeholder'=>$this->translator->trans('user.choose-roles',[],'forms')),
+
+        ));
+        if($builder->has('rolesMask')) $builder->get('rolesMask')->addModelTransformer(new CallbackTransformer(
+            function($rolesMask){
+                $normData = [];
+                foreach(Role::getMaskBits() as $id=>$bit){
+                    if($rolesMask&$bit) $normData[] = $bit;
+                }
+                return $normData;
+            },
+            function($normData){
+                return array_reduce($normData,function($mask, $bit){
+                    return $mask|$bit;
+                }, 0);
+            }
         ));
         $this->add('department',EntityType::class, array(
             'label'=>'user.department',
@@ -86,7 +96,7 @@ class UserType extends BaseEntityType {
             case 'login': return in_array($this->usage, ['new', 'edit', ]);
             case 'password': return in_array($this->usage, ['new', 'edit', ]);
             case 'password_repeat': return in_array($this->usage, ['new', ]);
-            case 'roles': return in_array($this->usage, ['new', 'edit', ]);
+            case 'rolesMask': return in_array($this->usage, ['new', 'edit', ]);
             case 'department': return in_array($this->usage, ['new', 'edit']);
             case 'position': return in_array($this->usage, ['new', 'edit', ]);
         }

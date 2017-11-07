@@ -10,10 +10,8 @@ drop table if exists file;
 drop table if exists lifecycle_step;
 drop table if exists request;
 drop table if exists request_file;
-drop table if exists role;
 drop table if exists thread;
 drop table if exists user;
-drop table if exists user_role;
 
 #set foreign_key_checks = 1;
 
@@ -121,13 +119,6 @@ CREATE INDEX IDX_F33811EA427EB8A5 ON request_file (request_id);
 CREATE INDEX IDX_F33811EA93CB796C ON request_file (file_id);
 
 
-CREATE TABLE role
-(
-  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  role VARCHAR(20) NOT NULL
-);
-
-
 CREATE TABLE thread
 (
   id VARCHAR(255) PRIMARY KEY NOT NULL,
@@ -141,6 +132,10 @@ CREATE TABLE thread
 CREATE UNIQUE INDEX UNIQ_31204C83427EB8A5 ON thread (request_id);
 
 
+set @role_admin = 1;
+set @role_moderator = 2;
+set @role_executor = 4;
+set @role_user = 8;
 CREATE TABLE user
 (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -149,22 +144,12 @@ CREATE TABLE user
   login VARCHAR(50) NOT NULL,
   password VARCHAR(60) NOT NULL,
   position VARCHAR(50),
+  roles_mask SMALLINT NOT NULL,
   removed TINYINT DEFAULT 0 NOT NULL,
   FOREIGN KEY (department_id) REFERENCES department (id) ON DELETE SET NULL
 );
 CREATE INDEX IDX_8D93D649AE80F5DF ON user (department_id);
 
-
-CREATE TABLE user_role
-(
-  user_id INT NOT NULL,
-  role_id INT NOT NULL,
-  PRIMARY KEY (user_id, role_id),
-  FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
-  FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
-);
-CREATE INDEX IDX_2DE8C6A3A76ED395 ON user_role (user_id);
-CREATE INDEX IDX_2DE8C6A3D60322AC ON user_role (role_id);
 
 
 #
@@ -174,41 +159,35 @@ drop trigger if exists user_is_not_an_executor_anymore;
 delimiter //
 create trigger user_is_not_an_executor_anymore after update on user for each row
   BEGIN
-    update request set executor_id=null where executor_id=new.id and 
-                                              (new.id not in (select user_id from user_role where 
-                                                                     role_id=(select id from role 
-                                                                                    where role='ROLE_EXECUTOR' limit 1)));
+    update request set executor_id=null where executor_id=new.id and not user_is_executor(new.roles_mask);
   END//
-
-
 delimiter ;
 
 
+#
+# FUNCTIONS
+#
+drop function if exists user_is_executor;
+delimiter //
+create function user_is_executor(roles_mask smallint)
+  RETURNS BOOL
+  BEGIN 
+    RETURN roles_mask & @role_executor;
+  END//
+delimiter ;
+
 set FOREIGN_KEY_CHECKS = 1;
 
-insert into role (role) values ('ROLE_ADMIN'),('ROLE_MODERATOR'),('ROLE_EXECUTOR'),('ROLE_USER');
 
-insert into user(name, login, password, position) values ('admin', 'admin', '$2y$13$No1.HRFzRXlqxf1rvevepu8EMbk4hvdeEQLcssFNR3VoFfUyk0wBm', 'Сис админ');
-insert into user(name, login, password, position) values ('moder', 'moder', '$2y$13$5H544x2ShZCuJhbDIHlL4ug40t4Phb96C1CxHINLFQCvjg97RqhHu', 'Менеджер');
-insert into user(name, login, password, position) values ('exer', 'exer', '$2y$13$Nx5UeJZuxzw3LNbNlFEsSuZryGKtqTWvh/etpLuAg836G9.Qn4oXm', 'Техник');
-insert into user(name, login, password, position) values ('user', 'user', '$2y$13$vqmbP5wapZapIWv3Qqg60u6H2i9gsq3fIzT/UgRDYoO44feopO8Zq', 'Приемщик');
+#
+# TEMP DATA
+#
 
-insert into user_role(user_id, role_id)  values (
-                                                  (select id from user  where login='admin'), 
-                                                  (select id from role where role='ROLE_ADMIN')
-                                                );
-insert into user_role(user_id, role_id)  values (
-                                                  (select id from user  where login='moder'),
-                                                  (select id from role where role='ROLE_MODERATOR')
-                                                );
-insert into user_role(user_id, role_id)  values (
-                                                  (select id from user  where login='exer'),
-                                                  (select id from role where role='ROLE_EXECUTOR')
-                                                );
-insert into user_role(user_id, role_id)  values (
-                                                  (select id from user  where login='user'),
-                                                  (select id from role where role='ROLE_USER')
-                                                );
+insert into user(name, login, roles_mask, password, position) values ('admin', 'admin', @role_admin,  '$2y$13$No1.HRFzRXlqxf1rvevepu8EMbk4hvdeEQLcssFNR3VoFfUyk0wBm', 'Сис админ');
+insert into user(name, login, roles_mask, password, position) values ('moder', 'moder', @role_moderator, '$2y$13$5H544x2ShZCuJhbDIHlL4ug40t4Phb96C1CxHINLFQCvjg97RqhHu', 'Менеджер');
+insert into user(name, login, roles_mask, password, position) values ('exer', 'exer', @role_executor, '$2y$13$Nx5UeJZuxzw3LNbNlFEsSuZryGKtqTWvh/etpLuAg836G9.Qn4oXm', 'Техник');
+insert into user(name, login, roles_mask, password, position) values ('user', 'user', @role_user, '$2y$13$vqmbP5wapZapIWv3Qqg60u6H2i9gsq3fIzT/UgRDYoO44feopO8Zq', 'Приемщик');
+
 
 insert into category(name) values ('Компьютеры'),('Мебель');
 insert into department(name) values ('Администрация'),('Бухгалтерия');

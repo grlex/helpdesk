@@ -7,10 +7,6 @@
  */
 
 namespace AppBundle\Entity;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
@@ -145,10 +141,10 @@ class Request extends BaseEntity
     }
 
 
-    public static function &getPriorities(){
+    public static function getPriorities(){
         return self::$priorities;
     }
-    public static function &getStatuses(){
+    public static function getStatuses(){
 
         return self::$statuses;
     }
@@ -158,6 +154,14 @@ class Request extends BaseEntity
     }
     public function getTextPriority(){
         return $this->priority ? self::$priorities[$this->priority] : '';
+    }
+    public static function translateTextStatuses(TranslatorInterface $translator, $prefix="request.status.", $domain="entities" ){
+        foreach(self::$statuses as &$textStatus)
+            $textStatus = $translator->trans($prefix.$textStatus,[],$domain);
+    }
+    public static function translateTextPriorities(TranslatorInterface $translator, $prefix="request.priority.", $domain="entities" ){
+        foreach(self::$priorities as &$textPriority)
+            $textPriority = $translator->trans($prefix.$textPriority,[],$domain);
     }
 
     public function __construct()
